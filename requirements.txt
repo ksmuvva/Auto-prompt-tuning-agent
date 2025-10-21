@@ -1,0 +1,22 @@
+# Core dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+
+# LLM providers (optional - install only what you need)
+openai>=1.0.0
+anthropic>=0.18.0
+
+# Optional: for advanced token counting
+tiktoken>=0.5.0
+
+# Configuration
+pyyaml>=6.0
+
+# Development tools (optional)
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Jupyter support (optional, for notebook analysis)
+jupyter>=1.0.0
+ipython>=8.0.0

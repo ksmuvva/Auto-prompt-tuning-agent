@@ -1,0 +1,64 @@
+{
+  "agent": {
+    "name": "PromptTuningAgent",
+    "version": "1.0.0",
+    "description": "Automated prompt tuning AI agent for bank transaction analysis"
+  },
+
+  "llm": {
+    "default_provider": "mock",
+    "providers": {
+      "openai": {
+        "model": "gpt-4",
+        "temperature": 0.7,
+        "max_tokens": 2000
+      },
+      "anthropic": {
+        "model": "claude-3-sonnet-20240229",
+        "temperature": 0.7,
+        "max_tokens": 2000
+      },
+      "mock": {
+        "enabled": true
+      }
+    }
+  },
+
+  "data": {
+    "directory": "data",
+    "threshold_gbp": 250.0,
+    "max_rows_for_llm": 1000,
+    "date_format": "%Y-%m-%d"
+  },
+
+  "tuning": {
+    "max_iterations": 3,
+    "target_score": 0.85,
+    "default_mode": "quick",
+    "test_all_prompts": false
+  },
+
+  "metrics": {
+    "weights": {
+      "accuracy": 0.30,
+      "f1_score": 0.25,
+      "completeness": 0.15,
+      "format_quality": 0.15,
+      "specificity": 0.15
+    },
+    "minimum_acceptable_score": 0.60
+  },
+
+  "output": {
+    "directory": "results",
+    "export_format": "json",
+    "save_intermediate_results": true,
+    "log_level": "INFO"
+  },
+
+  "memory": {
+    "file": "logs/agent_memory.json",
+    "max_short_term_items": 50,
+    "auto_save": true
+  }
+}
