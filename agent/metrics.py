@@ -72,7 +72,14 @@ class PromptMetrics:
         if not ground_truth.get('high_value_transactions'):
             return 0.0
 
-        predicted_ids = set(predicted.get('high_value_transactions', []))
+        # Extract IDs from predicted (could be list of dicts or list of IDs)
+        predicted_transactions = predicted.get('high_value_transactions', [])
+        if predicted_transactions and isinstance(predicted_transactions[0], dict):
+            predicted_ids = set(t.get('transaction_id', str(i)) for i, t in enumerate(predicted_transactions))
+        else:
+            predicted_ids = set(predicted_transactions)
+
+        # Extract IDs from ground truth
         true_ids = set(ground_truth['high_value_transactions'])
 
         if not true_ids:
