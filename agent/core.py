@@ -124,7 +124,12 @@ class PromptTuningAgent:
 
         # Initialize components
         self.memory = AgentMemory()
-        self.llm_service = LLMService(provider=llm_provider, **self.config.get('llm', {}))
+        
+        # Get provider-specific config (not the general llm config)
+        llm_config = self.config.get('llm', {})
+        provider_config = llm_config.get('providers', {}).get(llm_provider, {})
+        
+        self.llm_service = LLMService(provider=llm_provider, **provider_config)
         self.data_processor = TransactionDataProcessor(data_dir=data_dir)
         self.template_library = PromptTemplateLibrary()
         self.prompt_tuner = PromptTuner(

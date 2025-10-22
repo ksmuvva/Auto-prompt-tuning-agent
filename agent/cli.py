@@ -52,7 +52,7 @@ AVAILABLE COMMANDS:
 SETUP & CONFIGURATION:
   init <provider>        Initialize agent with LLM provider
                          Providers: openai, anthropic, gemini, cohere, 
-                                   mistral, ollama, lmstudio, mock
+                                   mistral, ollama, lmstudio
                          Example: init openai
 
   config                 Show current configuration
@@ -132,7 +132,7 @@ EXAMPLES:
 """
         print(help_text)
 
-    def initialize_agent(self, provider: str = "mock"):
+    def initialize_agent(self, provider: str = "openai"):
         """Initialize the AI agent"""
         try:
             print(f"\nInitializing AI Agent with '{provider}' provider...")
@@ -191,14 +191,14 @@ EXAMPLES:
             return True
 
         if cmd == 'init':
-            provider = args if args else "mock"
+            provider = args if args else "openai"
             self.initialize_agent(provider)
             return True
 
         # Commands that require initialized agent
         if not self.agent:
             print("⚠ Agent not initialized. Use 'init <provider>' first.")
-            print("  Example: init mock")
+            print("  Example: init openai")
             return True
 
         # Handle agent commands
@@ -370,7 +370,7 @@ EXAMPLES:
             elif cmd == 'set-provider':
                 if not args:
                     print("Usage: set-provider <name>")
-                    print("Available: openai, anthropic, gemini, cohere, mistral, ollama, lmstudio, mock")
+                    print("Available: openai, anthropic, gemini, cohere, mistral, ollama, lmstudio")
                 else:
                     try:
                         self.agent.llm_service.switch_provider(args)
@@ -627,9 +627,9 @@ EXAMPLES:
         self.print_banner()
         self.running = True
 
-        # Auto-initialize with mock provider
-        print("Auto-initializing with mock provider for testing...")
-        self.initialize_agent("mock")
+        # Auto-initialize with OpenAI provider
+        print("Auto-initializing with OpenAI provider...")
+        self.initialize_agent("openai")
         print("\nReady! Type 'help' for commands.\n")
 
         while self.running:
@@ -648,7 +648,7 @@ EXAMPLES:
     def run_command(self, command: str):
         """Run a single command (non-interactive)"""
         if not self.agent:
-            self.initialize_agent("mock")
+            self.initialize_agent("openai")
         self.handle_command(command)
 
 
@@ -663,9 +663,9 @@ def main():
     )
     parser.add_argument(
         '-p', '--provider',
-        default='mock',
-        choices=['openai', 'anthropic', 'gemini', 'cohere', 'mistral', 'ollama', 'lmstudio', 'mock'],
-        help='LLM provider to use (default: mock)'
+        default='openai',
+        choices=['openai', 'anthropic', 'gemini', 'cohere', 'mistral', 'ollama', 'lmstudio'],
+        help='LLM provider to use (default: openai)'
     )
 
     args = parser.parse_args()

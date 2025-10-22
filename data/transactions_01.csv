@@ -1,101 +1,101 @@
 transaction_id,date,amount,actual_amount,currency,merchant,transaction_type,description,category,status,has_error,notes
-TXN0010057,2025-01-02,239.7,239.7,GBP,Trainline,Contactless,Trainline,Transport,Completed,False,
-TXN0010008,2025-01-02,470.87,470.87,GBP,Anonymous Payment,Purchase,Purchase - Anonymous Payment,Unknown,Completed,False,Missing audit trail
-TXN0010019,2025-01-04,50.32,50.32,GBP,British Airways,Standing Order,Payment to British Airways,Travel,Completed,False,
-TXN0010030,2025-01-05,19.76,19.76,GBP,Airbnb,Standing Order,Airbnb - Standing Order,Travel,Completed,False,
-TXN0010089,2025-01-08,1294.82,1294.82,GBP,Barclaycard Payment,Refund,Refund - Barclaycard Payment,Debt Payment,Completed,False,High value transaction
-TXN0010042,2025-01-11,105.48,105.48,GBP,McDonald's,Contactless,Contactless - McDonald's,Food & Drink,Completed,False,
-TXN0010091,2025-01-12,11.4,11.4,GBP,Apple Store,Card Payment,Apple Store - Card Payment,Electronics,Completed,False,
-TXN0010073,2025-01-13,244.86,244.86,GBP,Waitrose,Refund,Waitrose,Groceries,Completed,False,
-TXN0010094,2025-01-14,446.51,446.51,GBP,Tesco Bank Loan,ATM Withdrawal,ATM Withdrawal - Tesco Bank Loan,Debt Payment,Completed,False,
-TXN0010053,2025-01-15,1449.83,1449.83,GBP,Wise Transfer,Card Payment,Wise Transfer - Card Payment,Money Transfer,Completed,False,High value transaction
-TXN0010069,2025-01-15,118.81,118.81,GBP,Online Casino,Card Payment,Online Casino,Gambling,Completed,False,Gambling transaction
-TXN0010024,2025-01-16,478.12,478.12,GBP,Thames Water,Mobile Payment,Mobile Payment - Thames Water,Utilities,Completed,False,
-TXN0010077,2025-01-17,151.54,151.54,GBP,Spotify,Standing Order,Spotify,Entertainment,Completed,False,
-TXN0010041,2025-01-21,74.29,74.29,GBP,Morrisons,Card Payment,Payment to Morrisons,Groceries,Completed,False,
-TXN0010043,2025-01-22,214.42,214.42,GBP,National Rail,Bank Transfer,National Rail,Transport,Completed,False,
-TXN0010029,2025-01-23,147.91,147.91,GBP,Apple Store,Mobile Payment,Apple Store,Electronics,Completed,False,
-TXN0010039,2025-01-23,927.73,927.73,GBP,Santander Mortgage,Contactless,Santander Mortgage - Contactless,Debt Payment,Completed,False,
-TXN0010001,2025-01-23,182.03,182.03,GBP,Asda,Refund,Asda - Refund,Groceries,Completed,False,
-TXN0010035,2025-01-25,1780.56,1780.56,GBP,Xoom,Mobile Payment,Mobile Payment - Xoom,Money Transfer,Completed,False,High value transaction
-TXN0010023,2025-01-27,489.42,489.42,GBP,British Airways,Card Payment,Card Payment - British Airways,Travel,Completed,False,
-TXN0010018,2025-01-28,102.37,102.37,GBP,Amazn UK,Purchase,Purchase - Amazn UK,Error,Completed,False,
-TXN0010033,2025-02-01,1112.91,1112.91,GBP,Dior,Purchase,Payment to Dior,Luxury,Completed,False,High value transaction
-TXN0010055,2025-02-03,217.79,217.79,GBP,Amazon Prime,Contactless,Contactless - Amazon Prime,Online Shopping,Completed,False,
-TXN0010081,2025-02-06,216.44,216.44,GBP,Tesco Supermarket,Online Purchase,Tesco Supermarket,Groceries,Completed,False,
-TXN0010005,2025-02-07,237.37,237.37,GBP,TfL Transport,Mobile Payment,Payment to TfL Transport,Transport,Completed,False,
-TXN0010064,2025-02-08,-2356.27,-2356.27,GBP,Hermes Paris,Refund,Refund - Hermes Paris,Luxury,Completed,False,Luxury purchase
-TXN0010011,2025-02-11,153.64,153.64,GBP,Airbnb,Standing Order,Payment to Airbnb,Travel,Completed,False,
-TXN0010010,2025-02-13,800.28,800.28,GBP,Xoom,Refund,Refund - Xoom,Money Transfer,Completed,False,
-TXN0010027,2025-02-18,844.34,844.34,GBP,Esso,Card Payment,Esso - Card Payment,Transport,Completed,False,
-TXN0010096,2025-02-19,182.13,182.13,GBP,British Gas,ATM Withdrawal,Payment to British Gas,Utilities,Failed,False,
-TXN0010088,2025-02-21,214.81,214.81,GBP,Argos,ATM Withdrawal,Argos - ATM Withdrawal,Electronics,Completed,False,
-TXN0010083,2025-02-22,44.61,44.61,GBP,Tesco Supermarket,ATM Withdrawal,ATM Withdrawal - Tesco Supermarket,Groceries,Pending,False,
-TXN0010066,2025-02-26,134.39,134.39,GBP,eBay,Contactless,eBay - Contactless,Online Shopping,Completed,False,
-TXN0010016,2025-02-27,92.64,92.64,GBP,Airbnb,Purchase,Purchase - Airbnb,Travel,Completed,False,
-TXN0010038,2025-02-28,79.43,79.43,GBP,M&S,Standing Order,M&S - Standing Order,Groceries,Completed,False,
-TXN0010031,2025-04-02,3478.72,3478.72,GBP,Sky TV,Refund,Refund - Sky TV,Entertainment,Completed,False,High value transaction
-TXN0010090,2025-04-04,203.06,203.06,GBP,Airbnb,ATM Withdrawal,Airbnb - ATM Withdrawal,Travel,Completed,False,
-TXN0010093,2025-04-04,116.72,116.72,GBP,Netflix,Direct Debit,Direct Debit - Netflix,Entertainment,Completed,False,
-TXN0010085,2025-04-07,77.16,77.16,GBP,Amazn UK,Contactless,Contactless - Amazn UK,Error,Completed,False,
-TXN0010050,2025-04-10,175.92,175.92,GBP,Netflix,Card Payment,Payment to Netflix,Entertainment,Completed,False,
-TXN0010040,2025-04-10,3922.38,3922.38,GBP,Costa Coffee,Bank Transfer,Costa Coffee,Food & Drink,Completed,False,High value transaction
-TXN0010021,2025-04-11,142.25,142.25,GBP,Virgin Atlantic,Standing Order,Virgin Atlantic - Standing Order,Travel,Completed,False,
-TXN0010065,2025-04-12,18.18,18.18,GBP,Octopus Energy,Standing Order,Octopus Energy - Standing Order,Utilities,Completed,False,
-TXN0010049,2025-04-13,1335.48,1335.48,GBP,Santander Mortgage,Contactless,Payment to Santander Mortgage,Debt Payment,Completed,False,High value transaction
-TXN0010080,2025-04-16,76.8,76.8,GBP,Uber,Direct Debit,Direct Debit - Uber,Transport,Completed,False,
-TXN0010025,2025-04-17,-132.09,-132.09,GBP,TfL Transport,Purchase,TfL Transport,Transport,Completed,False,
-TXN0010004,2025-04-21,179.21,179.21,GBP,Coral,Card Payment,Coral - Card Payment,Gambling,Completed,False,Gambling transaction
-TXN0010061,2025-04-24,215.52,215.52,GBP,Airbnb,Bank Transfer,Payment to Airbnb,Travel,Completed,False,
-TXN0010051,2025-04-27,103.55,103.55,GBP,Trainline,Refund,Trainline - Refund,Transport,Completed,False,
-TXN0010046,2025-05-01,80.27,80.27,GBP,Tesoc,Standing Order,Payment to Tesoc,Error,Completed,False,
-TXN0010070,2025-05-02,1022.65,1022.65,GBP,Bulgari,Bank Transfer,Payment to Bulgari,Luxury,Completed,False,High value transaction
-TXN0010044,2025-05-04,509.37,509.37,GBP,Virgin Atlantic,Contactless,Payment to Virgin Atlantic,Travel,Completed,False,
-TXN0010017,2025-05-07,125.25,125.25,GBP,Sainsbury's,Mobile Payment,Sainsbury's - Mobile Payment,Groceries,Completed,False,
-TXN0010092,2025-05-08,182.94,182.94,GBP,Samsung Store,Direct Debit,Payment to Samsung Store,Electronics,Completed,False,
-TXN0010013,2025-05-08,933.13,933.13,GBP,Uber,Refund,Uber,Transport,Completed,False,
-TXN0010062,2025-05-09,125.6,125.6,GBP,McDonald's,Refund,McDonald's - Refund,Food & Drink,Completed,False,
-TXN0010036,2025-05-11,171.37,171.37,GBP,Airbnb,Mobile Payment,Payment to Airbnb,Travel,Completed,False,
-TXN0010060,2025-05-13,2088.0,2088.0,GBP,Cartier,Online Purchase,Cartier - Online Purchase,Luxury,Completed,False,High value transaction
-TXN0010003,2025-05-14,191.39,191.39,GBP,M&S,Online Purchase,Payment to M&S,Groceries,Completed,False,
-TXN0010078,2025-05-14,51.58,51.58,GBP,Unibet,Contactless,Unibet,Gambling,Completed,False,Gambling transaction
-TXN0010095,2025-05-16,170.96,170.96,GBP,Waitrose,Online Purchase,Online Purchase - Waitrose,Groceries,Completed,False,
-TXN0010020,2025-05-20,648.58,648.58,GBP,Esso,Bank Transfer,Payment to Esso,Transport,Completed,False,
-TXN0010045,2025-05-20,945.73,945.73,GBP,Amazon Prime,Refund,Amazon Prime,Online Shopping,Completed,False,
-TXN0010058,2025-05-21,66.69,66.69,GBP,Hotels.com,Standing Order,Hotels.com - Standing Order,Travel,Completed,False,
-TXN0010052,2025-05-23,145.42,145.42,GBP,Premier Inn,Contactless,Premier Inn - Contactless,Travel,Completed,False,
-TXN0010082,2025-05-23,217.52,217.52,GBP,HSBC Loan Repayment,Standing Order,HSBC Loan Repayment,Debt Payment,Completed,False,
-TXN0010034,2025-05-24,101.94,101.94,GBP,Starbucks,Mobile Payment,Starbucks - Mobile Payment,Food & Drink,Completed,False,
-TXN0010059,2025-05-25,105.57,105.57,GBP,Hotels.com,Mobile Payment,Payment to Hotels.com,Travel,Completed,False,
-TXN0010048,2025-05-27,17.96,17.96,GBP,Thames Water,Standing Order,Payment to Thames Water,Utilities,Completed,False,
-TXN0010071,2025-05-30,140.02,140.02,GBP,McDonald's,Standing Order,Standing Order - McDonald's,Food & Drink,Completed,False,
-TXN0010072,2025-07-02,459.7,459.7,GBP,EDF Energy,Direct Debit,EDF Energy,Utilities,Completed,False,
-TXN0010086,2025-07-03,467.09,467.09,GBP,Coral,Card Payment,Coral - Card Payment,Gambling,Completed,False,Gambling transaction
-TXN0010068,2025-07-03,2247.34,2247.34,GBP,Prada,ATM Withdrawal,Prada - ATM Withdrawal,Luxury,Completed,False,High value transaction
-TXN0010063,2025-07-05,25.18,25.18,GBP,Ladbrokes,Direct Debit,Ladbrokes,Gambling,Completed,False,Gambling transaction
-TXN0010000,2025-07-06,246.48,246.48,GBP,Santander Mortgage,Refund,Payment to Santander Mortgage,Debt Payment,Completed,False,
-TXN0010084,2025-07-07,2640.58,2640.58,GBP,Burberry,Online Purchase,Burberry,Luxury,Completed,False,High value transaction
-TXN0010015,2025-07-11,615.85,615.85,GBP,Morrisons,Contactless,Morrisons,Groceries,Completed,False,
-TXN0010007,2025-07-12,1184.65,1184.65,GBP,Gucci London,Online Purchase,Online Purchase - Gucci London,Luxury,Completed,False,High value transaction
-TXN0010028,2025-07-18,241.29,241.29,GBP,M&S,Card Payment,Card Payment - M&S,Groceries,Completed,False,
-TXN0010067,2025-07-19,221.74,221.74,GBP,Airbnb,Bank Transfer,Payment to Airbnb,Travel,Completed,False,
-TXN0010014,2025-07-24,202.22,202.22,GBP,Apple Store,Mobile Payment,Apple Store,Electronics,Completed,False,
-TXN0010026,2025-07-24,74.23,74.23,GBP,Pret A Manger,Bank Transfer,Payment to Pret A Manger,Food & Drink,Completed,False,
-TXN0010009,2025-07-26,1778.68,1778.68,GBP,Waitrose,Refund,Payment to Waitrose,Groceries,Completed,False,High value transaction
-TXN0010056,2025-07-27,63.68,63.68,GBP,Starbucks,Standing Order,Starbucks - Standing Order,Food & Drink,Completed,False,
-TXN0010054,2025-07-28,597.28,597.28,GBP,Tesco Bank Loan,Direct Debit,Payment to Tesco Bank Loan,Debt Payment,Completed,False,
-TXN0010076,2025-07-29,178.95,178.95,GBP,Sky TV,Card Payment,Card Payment - Sky TV,Entertainment,Completed,False,
-TXN0010079,2025-07-30,149.98,149.98,GBP,Texaco,Online Purchase,Payment to Texaco,Transport,Completed,False,
-TXN0010006,2025-08-02,685.11,685.11,GBP,M&S,Refund,Refund - M&S,Groceries,Completed,False,
-TXN0010097,2025-08-03,-82.24,-82.24,GBP,PokerStars,Refund,Payment to PokerStars,Gambling,Completed,False,Gambling transaction
-TXN0010012,2025-08-05,786.9,78.69,GBP,Netflix,Online Purchase,Netflix - Online Purchase,Entertainment,Completed,True,Data error detected
-TXN0010087,2025-08-06,730.72,730.72,GBP,PayPal Transfer,Purchase,PayPal Transfer,Money Transfer,Completed,False,
-TXN0010047,2025-08-08,108.22,108.22,GBP,British Gas,Contactless,Contactless - British Gas,Utilities,Completed,False,
-TXN0010074,2025-08-11,675.12,675.12,GBP,Shell Petrol,Mobile Payment,Mobile Payment - Shell Petrol,Transport,Completed,False,
-TXN0010099,2025-08-16,344.58,344.58,GBP,Unibet,Refund,Unibet - Refund,Gambling,Completed,False,Gambling transaction
-TXN0010032,2025-08-16,39.45,39.45,GBP,Octopus Energy,Bank Transfer,Payment to Octopus Energy,Utilities,Completed,False,
-TXN0010098,2025-08-21,446.9,446.9,GBP,Tesco Bank Loan,Card Payment,Payment to Tesco Bank Loan,Debt Payment,Completed,False,
-TXN0010037,2025-08-24,2323.25,2323.25,GBP,Amazon Prime,Purchase,Purchase - Amazon Prime,Online Shopping,Completed,False,High value transaction
-TXN0010022,2025-08-24,75.34,75.34,GBP,HSCB Bank,Bank Transfer,Payment to HSCB Bank,Error,Completed,False,
-TXN0010075,2025-08-27,210.05,210.05,GBP,Asda,Contactless,Contactless - Asda,Groceries,Completed,False,
-TXN0010002,2025-08-28,212.54,212.54,GBP,Costa Coffee,Standing Order,Standing Order - Costa Coffee,Food & Drink,Completed,False,
+TXN0010062,2025-01-01,699.39,699.39,GBP,Metro Bank Credit,Standing Order,Standing Order - Metro Bank Credit,Debt Payment,Completed,False,
+TXN0010058,2025-01-06,2780.98,2780.98,GBP,Booking.com,Purchase,Booking.com,Travel,Completed,False,High value transaction
+TXN0010021,2025-01-10,146.47,146.47,GBP,Sky TV,Mobile Payment,Mobile Payment - Sky TV,Entertainment,Completed,False,
+TXN0010015,2025-01-12,31.69,31.69,GBP,Starbucks,ATM Withdrawal,ATM Withdrawal - Starbucks,Food & Drink,Completed,False,
+TXN0010036,2025-01-13,863.43,863.43,GBP,Versace,Card Payment,Payment to Versace,Luxury,Completed,False,Luxury purchase
+TXN0010028,2025-01-14,1209.44,1209.44,GBP,Thames Water,Purchase,Payment to Thames Water,Utilities,Completed,False,High value transaction
+TXN0010080,2025-01-16,115.61,115.61,GBP,Trainline,Standing Order,Trainline,Transport,Completed,False,
+TXN0010009,2025-01-17,160.63,160.63,GBP,John Lewis,Online Purchase,John Lewis,Online Shopping,Completed,False,
+TXN0010079,2025-01-19,-862.02,-862.02,GBP,AMEX Payment,Contactless,AMEX Payment - Contactless,Debt Payment,Completed,False,
+TXN0010031,2025-01-21,726.07,726.07,GBP,Waitrose,ATM Withdrawal,ATM Withdrawal - Waitrose,Groceries,Completed,False,
+TXN0010077,2025-01-23,148.33,148.33,GBP,Netflix,Contactless,Netflix,Entertainment,Completed,False,
+TXN0010029,2025-01-24,90.18,90.18,GBP,TfL Transport,Contactless,Payment to TfL Transport,Transport,Completed,False,
+TXN0010067,2025-01-25,310.25,310.25,GBP,Ladbrokes,Contactless,Ladbrokes - Contactless,Gambling,Completed,False,Gambling transaction
+TXN0010007,2025-01-26,76.58,76.58,GBP,Pret A Manger,Purchase,Purchase - Pret A Manger,Food & Drink,Completed,False,
+TXN0010047,2025-01-29,439.76,439.76,GBP,Airbnb,Card Payment,Airbnb,Travel,Completed,False,
+TXN0010039,2025-02-01,63.12,63.12,GBP,Currys PC World,Mobile Payment,Currys PC World - Mobile Payment,Electronics,Completed,False,
+TXN0010089,2025-02-05,48.43,48.43,GBP,Shell Petrol,Mobile Payment,Mobile Payment - Shell Petrol,Transport,Completed,False,
+TXN0010040,2025-02-05,181.49,181.49,GBP,Netflix,Online Purchase,Payment to Netflix,Entertainment,Completed,False,
+TXN0010013,2025-02-06,110.75,110.75,GBP,Tesco Bank Loan,Direct Debit,Tesco Bank Loan,Debt Payment,Completed,False,
+TXN0010091,2025-02-08,168.27,168.27,GBP,Apple Store,Purchase,Apple Store,Electronics,Completed,False,
+TXN0010035,2025-02-09,115.65,115.65,GBP,888 Casino,Online Purchase,888 Casino,Gambling,Completed,False,Gambling transaction
+TXN0010025,2025-02-11,209.82,209.82,GBP,British Gas,Online Purchase,British Gas - Online Purchase,Utilities,Completed,False,
+TXN0010078,2025-02-12,142.6,142.6,GBP,TfL Transport,Online Purchase,Online Purchase - TfL Transport,Transport,Completed,False,
+TXN0010034,2025-02-13,577.4,577.4,GBP,Unknown Merchant,Contactless,Contactless - Unknown Merchant,Unknown,Completed,False,Missing audit trail
+TXN0010016,2025-02-14,48.58,48.58,GBP,Coral,Standing Order,Standing Order - Coral,Gambling,Completed,False,Gambling transaction
+TXN0010033,2025-02-14,32.3,32.3,GBP,Spotify,Online Purchase,Spotify - Online Purchase,Entertainment,Completed,False,
+TXN0010054,2025-02-15,28.38,28.38,GBP,Sainsbury's,Purchase,Sainsbury's - Purchase,Groceries,Completed,False,
+TXN0010042,2025-02-16,166.1,166.1,GBP,Costa Coffee,Refund,Refund - Costa Coffee,Food & Drink,Completed,False,
+TXN0010002,2025-02-19,219.44,219.44,GBP,eBay,Card Payment,Payment to eBay,Online Shopping,Completed,False,
+TXN0010022,2025-02-20,2971.08,2971.08,GBP,Waitrose,Refund,Payment to Waitrose,Groceries,Completed,False,High value transaction
+TXN0010099,2025-02-21,85.84,85.84,GBP,EasyJet,Card Payment,EasyJet,Travel,Completed,False,
+TXN0010052,2025-02-22,797.83,797.83,GBP,Chanel,Direct Debit,Chanel,Luxury,Completed,False,Luxury purchase
+TXN0010074,2025-02-28,943.69,943.69,GBP,Nationwide Loan,Standing Order,Nationwide Loan - Standing Order,Debt Payment,Completed,False,
+TXN0010051,2025-02-28,26.33,26.33,GBP,Costa Coffee,Card Payment,Payment to Costa Coffee,Food & Drink,Completed,False,
+TXN0010092,2025-04-01,56.2,56.2,GBP,Trainline,Standing Order,Payment to Trainline,Transport,Completed,False,
+TXN0010064,2025-04-03,274.77,274.77,GBP,888 Casino,Standing Order,888 Casino - Standing Order,Gambling,Completed,False,Gambling transaction
+TXN0010065,2025-04-06,31.62,31.62,GBP,Bet365,Card Payment,Bet365 - Card Payment,Gambling,Completed,False,Gambling transaction
+TXN0010088,2025-04-11,1645.44,1645.44,GBP,Gucci London,Bank Transfer,Gucci London - Bank Transfer,Luxury,Completed,False,High value transaction
+TXN0010027,2025-04-11,225.44,225.44,GBP,Spotify,Purchase,Purchase - Spotify,Entertainment,Completed,False,
+TXN0010070,2025-04-11,1176.92,1176.92,GBP,Remitly,Bank Transfer,Remitly,Money Transfer,Completed,False,High value transaction
+TXN0010086,2025-04-11,210.15,210.15,GBP,Bet365,Direct Debit,Direct Debit - Bet365,Gambling,Completed,False,Gambling transaction
+TXN0010061,2025-04-13,25.83,25.83,GBP,Morrisons,Bank Transfer,Payment to Morrisons,Groceries,Completed,False,
+TXN0010041,2025-04-13,-54.62,-54.62,GBP,PokerStars,Purchase,PokerStars - Purchase,Gambling,Completed,False,Gambling transaction
+TXN0010071,2025-04-15,72.17,72.17,GBP,Hotels.com,Purchase,Payment to Hotels.com,Travel,Completed,False,
+TXN0010012,2025-04-17,953.7,953.7,GBP,Virgin Money Credit Card,Card Payment,Card Payment - Virgin Money Credit Card,Debt Payment,Completed,False,
+TXN0010084,2025-04-20,375.26,375.26,GBP,British Airways,Direct Debit,British Airways,Travel,Completed,False,
+TXN0010003,2025-04-23,142.1,142.1,GBP,Amazn UK,Contactless,Contactless - Amazn UK,Error,Completed,False,
+TXN0010056,2025-04-25,1008.13,1008.13,GBP,Western Union,Purchase,Payment to Western Union,Money Transfer,Completed,False,High value transaction
+TXN0010082,2025-04-27,248.3,248.3,GBP,BP Station,Standing Order,Standing Order - BP Station,Transport,Completed,False,
+TXN0010066,2025-04-29,199.89,199.89,GBP,Amazon UK,Online Purchase,Amazon UK,Online Shopping,Completed,False,
+TXN0010096,2025-04-30,194.4,194.4,GBP,Paddy Power,Card Payment,Paddy Power - Card Payment,Gambling,Completed,False,Gambling transaction
+TXN0010090,2025-05-04,43.28,43.28,GBP,Esso,Card Payment,Esso - Card Payment,Transport,Completed,False,
+TXN0010059,2025-05-04,117.89,117.89,GBP,Shell Petrol,Direct Debit,Direct Debit - Shell Petrol,Transport,Completed,False,
+TXN0010026,2025-05-05,162.2,162.2,GBP,Sainsbury's,Refund,Sainsbury's - Refund,Groceries,Completed,False,
+TXN0010075,2025-05-06,1212.19,1212.19,GBP,Tesco Bank Loan,Standing Order,Tesco Bank Loan,Debt Payment,Completed,False,High value transaction
+TXN0010048,2025-05-11,279.54,279.54,GBP,William Hill,Direct Debit,William Hill,Gambling,Completed,False,Gambling transaction
+TXN0010081,2025-05-11,245.44,245.44,GBP,BP Station,Bank Transfer,Bank Transfer - BP Station,Transport,Completed,False,
+TXN0010017,2025-05-12,188.21,188.21,GBP,National Rail,Refund,National Rail,Transport,Completed,False,
+TXN0010023,2025-05-13,93.82,93.82,GBP,Waitrose,Standing Order,Standing Order - Waitrose,Groceries,Completed,False,
+TXN0010083,2025-05-18,1136.81,1136.81,GBP,Burberry,Direct Debit,Burberry,Luxury,Completed,False,High value transaction
+TXN0010072,2025-05-25,212.16,212.16,GBP,Sainsbury's,Direct Debit,Direct Debit - Sainsbury's,Groceries,Completed,False,
+TXN0010087,2025-05-26,113.13,113.13,GBP,John Lewis,Card Payment,John Lewis - Card Payment,Online Shopping,Completed,False,
+TXN0010068,2025-05-27,63.67,63.67,GBP,Starbucks,Purchase,Starbucks - Purchase,Food & Drink,Completed,False,
+TXN0010085,2025-07-01,54.08,54.08,GBP,Argos,Standing Order,Argos,Electronics,Completed,False,
+TXN0010011,2025-07-02,215.78,215.78,GBP,Virgin Atlantic,Mobile Payment,Payment to Virgin Atlantic,Travel,Completed,False,
+TXN0010046,2025-07-02,2460.4,2460.4,GBP,British Airways,Refund,Payment to British Airways,Travel,Completed,False,High value transaction
+TXN0010094,2025-07-02,914.32,914.32,GBP,BP Station,Online Purchase,Online Purchase - BP Station,Transport,Completed,False,
+TXN0010010,2025-07-02,-81.6,-81.6,GBP,Esso,Direct Debit,Direct Debit - Esso,Transport,Completed,False,
+TXN0010063,2025-07-02,151.26,151.26,GBP,Asda,Refund,Payment to Asda,Groceries,Completed,False,
+TXN0010097,2025-07-03,191.99,191.99,GBP,Premier Inn,Direct Debit,Payment to Premier Inn,Travel,Completed,False,
+TXN0010055,2025-07-11,68.62,68.62,GBP,Shell Petrol,Refund,Shell Petrol - Refund,Transport,Completed,False,
+TXN0010095,2025-07-12,191.32,191.32,GBP,British Airways,Purchase,Payment to British Airways,Travel,Completed,False,
+TXN0010050,2025-07-15,112.11,112.11,GBP,Samsung Store,Direct Debit,Samsung Store,Electronics,Completed,False,
+TXN0010060,2025-07-21,817.63,817.63,GBP,Cash Withdrawal ATM,Refund,Refund - Cash Withdrawal ATM,Unknown,Completed,False,Missing audit trail
+TXN0010019,2025-07-21,699.41,699.41,GBP,Metro Bank Credit,Contactless,Contactless - Metro Bank Credit,Debt Payment,Completed,False,
+TXN0010069,2025-07-23,-162.73,-162.73,GBP,National Rail,Refund,Payment to National Rail,Transport,Completed,False,
+TXN0010045,2025-07-23,285.4,28.54,GBP,Virgin Atlantic,Mobile Payment,Mobile Payment - Virgin Atlantic,Travel,Completed,True,Data error detected
+TXN0010093,2025-07-23,4329.86,4329.86,GBP,Costa Coffee,Contactless,Payment to Costa Coffee,Food & Drink,Completed,False,High value transaction
+TXN0010024,2025-07-26,2699.56,2699.56,GBP,Starbucks,Mobile Payment,Payment to Starbucks,Food & Drink,Completed,False,High value transaction
+TXN0010038,2025-07-26,216.12,216.12,GBP,Apple Store,Bank Transfer,Apple Store,Electronics,Completed,False,
+TXN0010057,2025-07-27,230.21,230.21,GBP,Virgin Atlantic,Standing Order,Virgin Atlantic - Standing Order,Travel,Completed,False,
+TXN0010000,2025-07-28,23.49,23.49,GBP,Waitrose,Card Payment,Waitrose,Groceries,Completed,False,
+TXN0010032,2025-07-29,40.29,40.29,GBP,Costa Coffee,Mobile Payment,Costa Coffee,Food & Drink,Completed,False,
+TXN0010073,2025-08-02,60.35,60.35,GBP,Uber,Purchase,Payment to Uber,Transport,Completed,False,
+TXN0010049,2025-08-02,903.23,903.23,GBP,Wire Transfer,Contactless,Wire Transfer,Unknown,Completed,False,Missing audit trail
+TXN0010006,2025-08-04,102.82,102.82,GBP,Argos,Contactless,Argos - Contactless,Electronics,Completed,False,
+TXN0010076,2025-08-06,143.73,143.73,GBP,Sainsbury's,Bank Transfer,Sainsbury's - Bank Transfer,Groceries,Completed,False,
+TXN0010030,2025-08-08,329.15,329.15,GBP,William Hill,Mobile Payment,William Hill,Gambling,Completed,False,Gambling transaction
+TXN0010037,2025-08-09,157.04,157.04,GBP,TfL Transport,ATM Withdrawal,Payment to TfL Transport,Transport,Completed,False,
+TXN0010053,2025-08-15,106.79,106.79,GBP,Asda,Online Purchase,Asda - Online Purchase,Groceries,Completed,False,
+TXN0010001,2025-08-15,142.2,142.2,GBP,Costa Coffee,Mobile Payment,Mobile Payment - Costa Coffee,Food & Drink,Completed,False,
+TXN0010005,2025-08-19,1827.34,1827.34,GBP,PayPal Transfer,Card Payment,Card Payment - PayPal Transfer,Money Transfer,Completed,False,High value transaction
+TXN0010008,2025-08-20,28.39,28.39,GBP,Airbnb,Purchase,Purchase - Airbnb,Travel,Completed,False,
+TXN0010014,2025-08-22,206.5,206.5,GBP,BP Station,Mobile Payment,Mobile Payment - BP Station,Transport,Completed,False,
+TXN0010044,2025-08-24,357.43,357.43,GBP,Waitrose,ATM Withdrawal,Waitrose - ATM Withdrawal,Groceries,Completed,False,
+TXN0010018,2025-08-26,975.07,975.07,GBP,Prada,Card Payment,Prada - Card Payment,Luxury,Completed,False,Luxury purchase
+TXN0010004,2025-08-27,109.49,109.49,GBP,Pret A Manger,Mobile Payment,Pret A Manger - Mobile Payment,Food & Drink,Completed,False,
+TXN0010098,2025-08-27,186.34,186.34,GBP,EasyJet,Direct Debit,EasyJet,Travel,Completed,False,
+TXN0010020,2025-08-27,914.84,914.84,GBP,Argos,Mobile Payment,Argos,Electronics,Completed,False,
+TXN0010043,2025-08-30,264.19,264.19,GBP,Starbucks,Purchase,Payment to Starbucks,Food & Drink,Completed,False,

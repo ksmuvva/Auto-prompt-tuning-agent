@@ -1,80 +1,49 @@
 """
 Tests for LLM Service Layer
+Note: These tests require actual API keys to be set in .env file
+Tests will be skipped if API keys are not available
 """
 
 import pytest
 import sys
+import os
 from pathlib import Path
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from agent.llm_service import LLMService, MockLLMProvider, OpenAIProvider, AnthropicProvider
-
-
-class TestMockLLMProvider:
-    """Test mock LLM provider"""
-
-    def test_initialization(self):
-        """Test mock provider initializes correctly"""
-        provider = MockLLMProvider()
-        assert provider is not None
-
-    def test_generate(self):
-        """Test mock provider generates responses"""
-        provider = MockLLMProvider()
-        result = provider.generate("Test prompt")
-
-        assert result['success'] is True
-        assert 'response' in result
-        assert len(result['response']) > 0
-        assert result['model'] == 'mock-llm'
-
-    def test_count_tokens(self):
-        """Test token counting"""
-        provider = MockLLMProvider()
-        count = provider.count_tokens("This is a test message")
-        assert count > 0
-        assert isinstance(count, int)
+from agent.llm_service import LLMService, OpenAIProvider, AnthropicProvider
 
 
 class TestLLMService:
     """Test LLM service"""
 
-    def test_initialization_mock(self):
-        """Test service initializes with mock provider"""
-        service = LLMService(provider='mock')
-        assert service.provider_name == 'mock'
+    @pytest.mark.skipif(not os.getenv('OPENAI_API_KEY'), reason="OpenAI API key not set")
+    def test_initialization_openai(self):
+        """Test service initializes with OpenAI provider"""
+        service = LLMService(provider='openai')
+        assert service.provider_name == 'openai'
         assert service.provider is not None
 
     def test_initialization_unknown_provider(self):
-        """Test service falls back to mock for unknown provider"""
-        service = LLMService(provider='unknown_provider')
-        assert service.provider_name == 'unknown_provider'
-        assert isinstance(service.provider, MockLLMProvider)
+        """Test service raises error for unknown provider"""
+        with pytest.raises(ValueError):
+            service = LLMService(provider='unknown_provider')
 
+    @pytest.mark.skipif(not os.getenv('OPENAI_API_KEY'), reason="OpenAI API key not set")
     def test_generate(self):
-        """Test generate method"""
-        service = LLMService(provider='mock')
-        result = service.generate("Test prompt")
+        """Test generate method with OpenAI"""
+        service = LLMService(provider='openai')
+        result = service.generate("What is 2+2? Answer briefly.")
 
         assert result['success'] is True
         assert 'response' in result
         assert len(service.request_history) == 1
 
-    def test_batch_generate(self):
-        """Test batch generation"""
-        service = LLMService(provider='mock')
-        prompts = ["Prompt 1", "Prompt 2", "Prompt 3"]
-        results = service.batch_generate(prompts)
-
-        assert len(results) == 3
-        assert all(r['success'] for r in results)
-        assert len(service.request_history) == 3
-
+    @pytest.mark.skipif(not os.getenv('OPENAI_API_KEY'), reason="OpenAI API key not set")
     def test_usage_stats(self):
         """Test usage statistics tracking"""
-        service = LLMService(provider='mock')
+        service = LLMService(provider='openai')
 
         # Generate some requests
         service.generate("Test 1")
@@ -86,13 +55,15 @@ class TestLLMService:
         assert 'average_latency' in stats
         assert 'success_rate' in stats
 
+    @pytest.mark.skipif(not os.getenv('OPENAI_API_KEY'), reason="OpenAI API key not set")
     def test_switch_provider(self):
         """Test switching providers"""
-        service = LLMService(provider='mock')
+        service = LLMService(provider='openai')
         original_provider = service.provider_name
 
-        service.switch_provider('mock')
-        assert service.provider_name == 'mock'
+        # Switch to same provider (should work)
+        service.switch_provider('openai')
+        assert service.provider_name == 'openai'
 
 
 class TestProviderInitialization:

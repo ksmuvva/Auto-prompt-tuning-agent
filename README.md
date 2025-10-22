@@ -2,9 +2,9 @@
 
 **Automated Prompt Optimization for Financial Transaction Analysis**
 
-A sophisticated AI agent that autonomously tests, evaluates, and optimizes prompts for analyzing bank transaction data with **98% precision and accuracy targets** and **<2% bias**. The agent implements comprehensive prompt tuning with ground truth validation, dynamic prompt generation, and multi-model support.
+A sophisticated AI agent that autonomously tests, evaluates, and optimizes prompts for analyzing bank transaction data with **98% precision and accuracy targets** and **<2% bias**. The agent implements comprehensive FW (Financial Workflow) requirements (FW15-FW50) with ground truth validation, dynamic prompt generation, and multi-model support.
 
-## 🎯 Key takeaways 
+## 🎯 Key Achievements
 
 - ✅ **98% Precision & Accuracy** - Validated against ground truth
 - ✅ **<2% Bias** - Fair and consistent analysis across formats
@@ -12,7 +12,47 @@ A sophisticated AI agent that autonomously tests, evaluates, and optimizes promp
 - ✅ **Multiple LLM Support** - OpenAI, Anthropic, Google Gemini, Cohere, Mistral, local models
 - ✅ **3 Prompt Strategies** - Template-based, Dynamic generation, Hybrid
 - ✅ **Ground Truth Validation** - Master file never exposed to LLM
+- ✅ **Comprehensive Testing** - 6 test suites with integration tests
 
+## Features
+
+### FW Requirements (Financial Workflows)
+
+#### FW15: High-Value Transactions (>£250)
+- Groups spending by merchant and category
+- Identifies all transactions exceeding threshold
+- Statistical summaries and insights
+
+#### FW20: Luxury Brands & Money Transfers
+- Detects purchases from premium brands (Gucci, Louis Vuitton, Rolex, etc.)
+- Identifies money transfer services (Western Union, MoneyGram, Wise, etc.)
+- Groups similar transactions and accumulated small amounts
+
+#### FW25: Missing Audit Trail
+- Flags transactions lacking documentation
+- Identifies unknown merchants
+- Risk assessment for compliance
+
+#### FW30: Missing Months Detection
+- Analyzes temporal coverage of statements
+- Detects gaps in 6-month sequences
+- Continuity validation
+
+#### FW40: Light-Touch Fraud Detection
+- Detects misspellings in merchant names
+- Identifies calculation errors
+- Flags data quality issues and duplicates
+
+#### FW45: Gambling Analysis
+- Comprehensive gambling transaction tracking
+- Pattern detection (increasing/decreasing trends)
+- 6-month behavioral analysis
+- Risk indicators
+
+#### FW50: Large Debt Payments
+- Tracks debt repayments ≥£500
+- Categorizes by creditor type
+- Monthly totals and debt burden assessment
 
 ### Core Capabilities
 
@@ -28,7 +68,7 @@ A sophisticated AI agent that autonomously tests, evaluates, and optimizes promp
 
 ### Advanced Prompt Templates
 
-
+- **FW-Specific Templates** (7 templates): Tailored for each FW requirement
 - **Beam Reasoning**: Multi-path exploration with best path selection
 - **Monte Carlo Sampling**: Probabilistic reasoning with confidence intervals
 - **Chain of Thought Verified**: Self-verification for 98% accuracy

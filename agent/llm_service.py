@@ -472,58 +472,15 @@ class LMStudioProvider(LLMProvider):
         return len(text) // 4
 
 
-class MockLLMProvider(LLMProvider):
-    """Mock LLM for testing without API calls"""
-
-    def __init__(self):
-        logger.info("Mock LLM provider initialized (for testing)")
-
-    def generate(self, prompt: str, **kwargs) -> Dict[str, Any]:
-        """Generate mock response"""
-        time.sleep(0.5)  # Simulate API latency
-
-        response = f"""
-MOCK LLM ANALYSIS:
-==================
-
-HIGH-VALUE TRANSACTIONS (>250 GBP):
-- Transaction #123: 500.00 GBP - Large purchase at retail store
-- Transaction #456: 750.00 GBP - Hotel booking
-- Transaction #789: 1200.00 GBP - Electronics purchase
-
-ANOMALY DETECTION:
-- Transaction #321: 5000.00 GBP - Unusually large amount (Z-score: 4.5)
-- Transaction #654: Multiple small transactions in short time span
-- Transaction #987: Foreign currency transaction with unusual pattern
-
-SUMMARY:
-Found 3 high-value transactions totaling 2,450.00 GBP
-Detected 3 potential anomalies requiring review
-"""
-        return {
-            'success': True,
-            'response': response,
-            'model': 'mock-llm',
-            'tokens_used': 200,
-            'prompt_tokens': 100,
-            'completion_tokens': 100,
-            'latency': 0.5
-        }
-
-    def count_tokens(self, text: str) -> int:
-        """Mock token count"""
-        return len(text) // 4
-
-
 class LLMService:
     """Main LLM service with provider management"""
 
-    def __init__(self, provider: str = "mock", **kwargs):
+    def __init__(self, provider: str = "openai", **kwargs):
         """
         Initialize LLM service
 
         Args:
-            provider: 'openai', 'anthropic', or 'mock'
+            provider: 'openai', 'anthropic', 'gemini', 'cohere', 'mistral', 'ollama', or 'lmstudio'
             **kwargs: Provider-specific arguments
         """
         self.provider_name = provider
@@ -539,13 +496,12 @@ class LLMService:
             'cohere': CohereProvider,
             'mistral': MistralProvider,
             'ollama': OllamaProvider,
-            'lmstudio': LMStudioProvider,
-            'mock': MockLLMProvider
+            'lmstudio': LMStudioProvider
         }
 
         if provider not in providers:
-            logger.warning(f"Unknown provider '{provider}', falling back to mock")
-            provider = 'mock'
+            logger.error(f"Unknown provider '{provider}'. Valid providers: {list(providers.keys())}")
+            raise ValueError(f"Invalid provider: {provider}")
 
         provider_class = providers[provider]
 
@@ -553,8 +509,7 @@ class LLMService:
             return provider_class(**kwargs)
         except Exception as e:
             logger.error(f"Failed to initialize {provider}: {e}")
-            logger.info("Falling back to mock provider")
-            return MockLLMProvider()
+            raise
 
     def generate(self, prompt: str, **kwargs) -> Dict[str, Any]:
         """Generate response from LLM"""
