@@ -4,7 +4,7 @@
 
 A sophisticated AI agent that autonomously tests, evaluates, and optimizes prompts for analyzing bank transaction data with **98% precision and accuracy targets** and **<2% bias**. The agent implements comprehensive prompt tuning with ground truth validation, dynamic prompt generation, and multi-model support.
 
-## 🎯 Key Achievements
+## 🎯 Key takeaways 
 
 - ✅ **98% Precision & Accuracy** - Validated against ground truth
 - ✅ **<2% Bias** - Fair and consistent analysis across formats
@@ -12,7 +12,7 @@ A sophisticated AI agent that autonomously tests, evaluates, and optimizes promp
 - ✅ **Multiple LLM Support** - OpenAI, Anthropic, Google Gemini, Cohere, Mistral, local models
 - ✅ **3 Prompt Strategies** - Template-based, Dynamic generation, Hybrid
 - ✅ **Ground Truth Validation** - Master file never exposed to LLM
-- ✅ **Comprehensive Testing** - 6 test suites with integration tests
+
 
 ### Core Capabilities
 
@@ -28,7 +28,7 @@ A sophisticated AI agent that autonomously tests, evaluates, and optimizes promp
 
 ### Advanced Prompt Templates
 
-- **FW-Specific Templates** (7 templates): Tailored for each FW requirement
+
 - **Beam Reasoning**: Multi-path exploration with best path selection
 - **Monte Carlo Sampling**: Probabilistic reasoning with confidence intervals
 - **Chain of Thought Verified**: Self-verification for 98% accuracy
