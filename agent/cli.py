@@ -191,14 +191,14 @@ EXAMPLES:
             return True
 
         if cmd == 'init':
-            provider = args if args else "mock"
+            provider = args if args else "openai"
             self.initialize_agent(provider)
             return True
 
         # Commands that require initialized agent
         if not self.agent:
             print("⚠ Agent not initialized. Use 'init <provider>' first.")
-            print("  Example: init mock")
+            print("  Example: init openai")
             return True
 
         # Handle agent commands
@@ -370,7 +370,7 @@ EXAMPLES:
             elif cmd == 'set-provider':
                 if not args:
                     print("Usage: set-provider <name>")
-                    print("Available: openai, anthropic, gemini, cohere, mistral, ollama, lmstudio, mock")
+                    print("Available: openai, anthropic, gemini, cohere, mistral, ollama, lmstudio")
                 else:
                     try:
                         self.agent.llm_service.switch_provider(args)
@@ -648,7 +648,7 @@ EXAMPLES:
     def run_command(self, command: str):
         """Run a single command (non-interactive)"""
         if not self.agent:
-            self.initialize_agent("mock")
+            self.initialize_agent("openai")
         self.handle_command(command)
 
 
