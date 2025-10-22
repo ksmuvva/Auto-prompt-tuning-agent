@@ -2,7 +2,7 @@
 
 **Automated Prompt Optimization for Financial Transaction Analysis**
 
-A sophisticated AI agent that autonomously tests, evaluates, and optimizes prompts for analyzing bank transaction data with **98% precision and accuracy targets** and **<2% bias**. The agent implements comprehensive FW (Financial Workflow) requirements (FW15-FW50) with ground truth validation, dynamic prompt generation, and multi-model support.
+A sophisticated AI agent that autonomously tests, evaluates, and optimizes prompts for analyzing bank transaction data with **98% precision and accuracy targets** and **<2% bias**. The agent implements comprehensive prompt tuning with ground truth validation, dynamic prompt generation, and multi-model support.
 
 ## 🎯 Key Achievements
 
