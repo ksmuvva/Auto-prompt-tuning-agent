@@ -288,6 +288,7 @@ class PromptTuningAgent:
             'suggestions': []
         }
 
+        best_score = 0  # Initialize to avoid UnboundLocalError
         if self.best_results:
             best_prompt = self.prompt_tuner.best_prompt
             best_score = self.prompt_tuner.best_score
@@ -314,7 +315,7 @@ class PromptTuningAgent:
             avg_score = sum(p['pattern'].get('score', 0) for p in recent_patterns) / len(recent_patterns)
             recommendations['average_historical_score'] = avg_score
 
-            if avg_score > best_score if best_score else 0:
+            if avg_score > best_score:
                 recommendations['suggestions'].append(
                     "Historical patterns show potential for improvement - try different prompt strategies"
                 )
