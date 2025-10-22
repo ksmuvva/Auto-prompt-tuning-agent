@@ -341,3 +341,114 @@ class PromptMetrics:
         with open(filepath, 'w') as f:
             json.dump(self.metrics_history, f, indent=2, default=str)
         logger.info(f"Exported {len(self.metrics_history)} metric records to {filepath}")
+
+    def calculate_precision_advanced(
+        self,
+        true_positives: int,
+        false_positives: int
+    ) -> float:
+        """
+        Calculate precision with 98% target
+        Precision = TP / (TP + FP)
+        """
+        if true_positives + false_positives == 0:
+            return 1.0
+        
+        precision = true_positives / (true_positives + false_positives)
+        return round(precision, 4)
+
+    def calculate_accuracy_advanced(
+        self,
+        true_positives: int,
+        true_negatives: int,
+        false_positives: int,
+        false_negatives: int
+    ) -> float:
+        """
+        Calculate accuracy with 98% target
+        Accuracy = (TP + TN) / (TP + TN + FP + FN)
+        """
+        total = true_positives + true_negatives + false_positives + false_negatives
+        
+        if total == 0:
+            return 1.0
+        
+        accuracy = (true_positives + true_negatives) / total
+        return round(accuracy, 4)
+
+    def meets_target_metrics(
+        self,
+        precision: float,
+        accuracy: float,
+        precision_target: float = 0.98,
+        accuracy_target: float = 0.98
+    ) -> Dict[str, bool]:
+        """
+        Check if metrics meet the 98% targets
+        
+        Returns:
+            Dictionary indicating which targets are met
+        """
+        return {
+            'precision_met': precision >= precision_target,
+            'accuracy_met': accuracy >= accuracy_target,
+            'both_met': precision >= precision_target and accuracy >= accuracy_target,
+            'precision_gap': round(precision_target - precision, 4) if precision < precision_target else 0,
+            'accuracy_gap': round(accuracy_target - accuracy, 4) if accuracy < accuracy_target else 0
+        }
+
+    def generate_improvement_plan(
+        self,
+        precision: float,
+        accuracy: float,
+        precision_target: float = 0.98,
+        accuracy_target: float = 0.98
+    ) -> List[str]:
+        """
+        Generate specific improvement recommendations to reach 98% targets
+        """
+        recommendations = []
+        
+        precision_gap = precision_target - precision
+        accuracy_gap = accuracy_target - accuracy
+        
+        if precision_gap > 0:
+            if precision_gap > 0.10:
+                recommendations.append(
+                    f"CRITICAL: Precision is {precision_gap:.1%} below target. "
+                    "Reduce false positives by adding more specific filtering criteria."
+                )
+            elif precision_gap > 0.05:
+                recommendations.append(
+                    f"IMPORTANT: Precision is {precision_gap:.1%} below target. "
+                    "Refine detection patterns and add validation rules."
+                )
+            else:
+                recommendations.append(
+                    f"MINOR: Precision is {precision_gap:.1%} below target. "
+                    "Fine-tune threshold values and edge case handling."
+                )
+        
+        if accuracy_gap > 0:
+            if accuracy_gap > 0.10:
+                recommendations.append(
+                    f"CRITICAL: Accuracy is {accuracy_gap:.1%} below target. "
+                    "Review both false positives and false negatives."
+                )
+            elif accuracy_gap > 0.05:
+                recommendations.append(
+                    f"IMPORTANT: Accuracy is {accuracy_gap:.1%} below target. "
+                    "Improve overall detection algorithm."
+                )
+            else:
+                recommendations.append(
+                    f"MINOR: Accuracy is {accuracy_gap:.1%} below target. "
+                    "Small adjustments needed for optimal performance."
+                )
+        
+        if not recommendations:
+            recommendations.append(
+                "✓ Excellent! Both precision and accuracy meet the 98% targets."
+            )
+        
+        return recommendations

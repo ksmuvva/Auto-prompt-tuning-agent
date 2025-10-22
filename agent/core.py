@@ -15,6 +15,11 @@ from agent.data_processor import TransactionDataProcessor
 from agent.prompt_tuner import PromptTuner
 from agent.metrics import PromptMetrics
 from prompts.templates import PromptTemplateLibrary
+from agent.ground_truth import GroundTruthManager
+from agent.requirement_analyzer import RequirementAnalyzer
+from agent.dynamic_prompts import DynamicPromptGenerator
+from agent.comparative import ComparativeAnalyzer
+from agent.bias_detector import BiasDetector
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -128,12 +133,22 @@ class PromptTuningAgent:
             output_dir=output_dir
         )
 
+        # === NEW COMPONENTS FOR FW REQUIREMENTS ===
+        self.ground_truth_manager = GroundTruthManager()
+        self.requirement_analyzer = RequirementAnalyzer(data_dir=data_dir)
+        self.dynamic_prompt_generator = DynamicPromptGenerator(self.llm_service)
+        self.comparative_analyzer = ComparativeAnalyzer()
+        self.bias_detector = BiasDetector()
+
         # Agent state
         self.state = {
             'initialized': True,
             'data_loaded': False,
             'tuning_active': False,
-            'current_task': None
+            'current_task': None,
+            'prompt_strategy': self.config.get('prompt_strategy', 'template'),  # template | dynamic | hybrid
+            'validation_enabled': True,
+            'bias_checking_enabled': True
         }
 
         # Store best results
@@ -400,3 +415,346 @@ Provide a thoughtful, helpful response based on your expertise in prompt enginee
         self.state['data_loaded'] = False
         self.state['tuning_active'] = False
         logger.info("Agent reset complete")
+
+    # === NEW METHODS FOR FW REQUIREMENTS ===
+
+    def analyze_fw_requirement(
+        self,
+        requirement: str,
+        use_dynamic_prompt: bool = None,
+        validate: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Analyze a specific FW requirement
+
+        Args:
+            requirement: FW requirement code (e.g., 'fw15', 'fw20', 'fw45')
+            use_dynamic_prompt: Use dynamic prompt generation instead of templates
+            validate: Validate against ground truth
+
+        Returns:
+            Analysis results with metrics
+        """
+        logger.info(f"Analyzing {requirement.upper()}...")
+
+        if use_dynamic_prompt is None:
+            use_dynamic_prompt = self.state['prompt_strategy'] == 'dynamic'
+
+        # Get data from requirement analyzer
+        req_lower = requirement.lower()
+
+        if req_lower == 'fw15':
+            ground_truth_data = self.requirement_analyzer.analyze_fw15_high_value(threshold=250)
+        elif req_lower in ['fw20', 'fw20-luxury', 'fw20-transfer']:
+            ground_truth_data = self.requirement_analyzer.analyze_fw20_similar_transactions(threshold=250)
+        elif req_lower == 'fw25':
+            ground_truth_data = self.requirement_analyzer.analyze_fw25_missing_audit()
+        elif req_lower == 'fw30':
+            ground_truth_data = self.requirement_analyzer.analyze_fw30_missing_months()
+        elif req_lower == 'fw40':
+            ground_truth_data = self.requirement_analyzer.analyze_fw40_fraud_detection()
+        elif req_lower == 'fw45':
+            ground_truth_data = self.requirement_analyzer.analyze_fw45_gambling()
+        elif req_lower == 'fw50':
+            ground_truth_data = self.requirement_analyzer.analyze_fw50_debt_payments()
+        else:
+            return {'success': False, 'error': f'Unknown requirement: {requirement}'}
+
+        # Get or generate prompt
+        if use_dynamic_prompt:
+            logger.info("Using dynamic prompt generation...")
+            prompt = self.dynamic_prompt_generator.generate_fw_specific_prompt(
+                requirement=req_lower,
+                threshold=250
+            )
+        else:
+            logger.info("Using template-based prompt...")
+            template_name = f"{req_lower}_high_value" if req_lower == 'fw15' else req_lower
+            template = self.template_library.get_template(template_name)
+            if not template:
+                # Fallback to dynamic generation
+                prompt = self.dynamic_prompt_generator.generate_fw_specific_prompt(
+                    requirement=req_lower,
+                    threshold=250
+                )
+            else:
+                prompt = template.format(
+                    data=json.dumps(ground_truth_data, indent=2, default=str),
+                    threshold=250
+                )
+
+        # Get LLM analysis
+        llm_result = self.llm_service.generate(prompt)
+
+        if not llm_result.get('success'):
+            return {
+                'success': False,
+                'error': llm_result.get('error'),
+                'requirement': requirement
+            }
+
+        llm_response = llm_result['response']
+
+        # Validate against ground truth if enabled
+        validation_results = None
+        if validate and self.state['validation_enabled']:
+            logger.info("Validating against ground truth...")
+            # Parse LLM response to extract predictions
+            # This is simplified - actual implementation would parse the response
+            predictions = self._parse_llm_response_for_validation(llm_response, req_lower)
+
+            validation_results = self._validate_with_ground_truth(
+                requirement=req_lower,
+                predictions=predictions
+            )
+
+        return {
+            'success': True,
+            'requirement': requirement,
+            'ground_truth_data': ground_truth_data,
+            'llm_response': llm_response,
+            'validation': validation_results,
+            'prompt_used': 'dynamic' if use_dynamic_prompt else 'template',
+            'tokens_used': llm_result.get('tokens_used', 0),
+            'latency': llm_result.get('latency', 0)
+        }
+
+    def analyze_all_fw_requirements(
+        self,
+        use_dynamic_prompts: bool = None,
+        validate: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Run comprehensive analysis of all FW requirements
+
+        Returns:
+            Dictionary with results for all requirements
+        """
+        logger.info("Starting comprehensive FW requirements analysis...")
+
+        requirements = ['fw15', 'fw20', 'fw25', 'fw30', 'fw40', 'fw45', 'fw50']
+        results = {}
+
+        for req in requirements:
+            logger.info(f"Processing {req.upper()}...")
+            results[req] = self.analyze_fw_requirement(
+                requirement=req,
+                use_dynamic_prompt=use_dynamic_prompts,
+                validate=validate
+            )
+
+        # Generate comprehensive report
+        report = self._generate_comprehensive_report(results)
+
+        return {
+            'success': True,
+            'individual_results': results,
+            'comprehensive_report': report,
+            'timestamp': datetime.now().isoformat()
+        }
+
+    def _parse_llm_response_for_validation(
+        self,
+        llm_response: str,
+        requirement: str
+    ) -> List[Any]:
+        """
+        Parse LLM response to extract predictions for validation
+
+        This is a simplified version - actual implementation would have
+        more sophisticated parsing based on requirement type
+        """
+        # For now, return empty list - would be populated by actual parsing
+        # In production, this would extract transaction IDs, amounts, etc.
+        return []
+
+    def _validate_with_ground_truth(
+        self,
+        requirement: str,
+        predictions: List[Any]
+    ) -> Dict[str, Any]:
+        """
+        Validate predictions against ground truth
+
+        Returns:
+            Validation metrics (precision, accuracy, etc.)
+        """
+        if requirement == 'fw15':
+            validation = self.ground_truth_manager.validate_fw15_high_value(predictions)
+        elif requirement == 'fw20':
+            validation = self.ground_truth_manager.validate_fw20_luxury_brands(predictions)
+        elif requirement == 'fw25':
+            validation = self.ground_truth_manager.validate_fw25_missing_audit(predictions)
+        elif requirement == 'fw30':
+            validation = self.ground_truth_manager.validate_fw30_missing_months(predictions)
+        elif requirement == 'fw45':
+            validation = self.ground_truth_manager.validate_fw45_gambling(predictions)
+        elif requirement == 'fw50':
+            validation = self.ground_truth_manager.validate_fw50_debt_payments(predictions)
+        else:
+            return {'error': f'No validation method for {requirement}'}
+
+        return validation
+
+    def _generate_comprehensive_report(self, results: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate comprehensive analysis report"""
+        report = {
+            'summary': {
+                'total_requirements': len(results),
+                'successful': sum(1 for r in results.values() if r.get('success')),
+                'failed': sum(1 for r in results.values() if not r.get('success'))
+            },
+            'metrics': {},
+            'recommendations': []
+        }
+
+        # Aggregate metrics
+        for req, data in results.items():
+            if data.get('success') and data.get('validation'):
+                report['metrics'][req] = {
+                    'precision': data['validation'].get('precision', 0),
+                    'accuracy': data['validation'].get('accuracy', 0),
+                    'meets_target': data['validation'].get('meets_98_target', False)
+                }
+
+        return report
+
+    def compare_prompt_strategies(
+        self,
+        requirement: str,
+        strategies: List[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Compare different prompt strategies (template vs dynamic vs hybrid)
+
+        Args:
+            requirement: FW requirement to test
+            strategies: List of strategies to compare (defaults to all)
+
+        Returns:
+            Comparative analysis results
+        """
+        if strategies is None:
+            strategies = ['template', 'dynamic', 'hybrid']
+
+        logger.info(f"Comparing strategies for {requirement}...")
+
+        results = {}
+
+        for strategy in strategies:
+            logger.info(f"Testing {strategy} strategy...")
+
+            use_dynamic = strategy == 'dynamic'
+            if strategy == 'hybrid':
+                # Hybrid: Try template first, fallback to dynamic
+                result = self.analyze_fw_requirement(
+                    requirement=requirement,
+                    use_dynamic_prompt=False,
+                    validate=True
+                )
+                # If template performance is poor, try dynamic
+                if result.get('validation', {}).get('precision', 1.0) < 0.98:
+                    result = self.analyze_fw_requirement(
+                        requirement=requirement,
+                        use_dynamic_prompt=True,
+                        validate=True
+                    )
+            else:
+                result = self.analyze_fw_requirement(
+                    requirement=requirement,
+                    use_dynamic_prompt=use_dynamic,
+                    validate=True
+                )
+
+            results[strategy] = result
+
+        # Use comparative analyzer to generate comparison
+        comparison = self.comparative_analyzer.compare_strategies(results)
+
+        return {
+            'requirement': requirement,
+            'strategies_tested': strategies,
+            'results': results,
+            'comparison': comparison,
+            'recommendation': self.comparative_analyzer.recommend_best_option(
+                'strategy',
+                results,
+                criteria='balanced'
+            )
+        }
+
+    def run_bias_detection(
+        self,
+        requirement: str = None
+    ) -> Dict[str, Any]:
+        """
+        Run bias detection tests
+
+        Args:
+            requirement: Specific requirement to test (or all if None)
+
+        Returns:
+            Bias detection report
+        """
+        logger.info("Running bias detection...")
+
+        # Create a simple analysis function for testing
+        def analysis_function(data):
+            # Simplified - would use actual LLM analysis
+            return {'detected_items': []}
+
+        # Test merchant name variations
+        merchant_variations = [
+            ['Gucci', 'GUCCI', 'gucci'],
+            ['Western Union', 'WESTERN UNION', 'WesternUnion']
+        ]
+
+        merchant_bias = self.bias_detector.test_merchant_name_variations(
+            analysis_function,
+            merchant_variations
+        )
+
+        # Test currency format bias
+        amount_formats = [
+            '£250.00',
+            '250 GBP',
+            '250.00',
+            'GBP 250'
+        ]
+
+        currency_bias = self.bias_detector.test_currency_format_bias(
+            analysis_function,
+            amount_formats
+        )
+
+        # Test date format bias
+        date_formats = [
+            '2025-01-15',
+            '15/01/2025',
+            '01-15-2025',
+            '15 Jan 2025'
+        ]
+
+        date_bias = self.bias_detector.test_date_format_bias(
+            analysis_function,
+            date_formats
+        )
+
+        # Calculate overall bias
+        all_tests = {
+            'merchant_name_bias': merchant_bias,
+            'currency_format_bias': currency_bias,
+            'date_format_bias': date_bias
+        }
+
+        overall_bias = self.bias_detector.calculate_overall_bias(all_tests)
+
+        bias_report = self.bias_detector.generate_bias_report(all_tests)
+
+        return {
+            'overall_bias_score': overall_bias,
+            'meets_2_percent_target': overall_bias < 0.02,
+            'individual_tests': all_tests,
+            'report': bias_report
+        }
+

@@ -277,7 +277,518 @@ Provide tables with all findings.
             variables=["data", "threshold"]
         ))
 
-        logger.info(f"Initialized {len(self.templates)} prompt templates")
+        # === FW-SPECIFIC TEMPLATES ===
+        
+        # FW15: High-Value Transactions
+        self.add_template(PromptTemplate(
+            name="fw15_high_value",
+            description="FW15: Identify transactions exceeding £{threshold}",
+            template="""You are a financial analyst specializing in high-value transaction detection.
+
+TASK: Identify ALL transactions exceeding £{threshold}
+
+DATA:
+{data}
+
+REQUIREMENTS:
+1. Precision: ≥98% (avoid false positives)
+2. Accuracy: ≥98% (correct identification)
+3. Include ALL transactions where amount > {threshold}
+
+EXCLUSION CRITERIA:
+- Do NOT include transactions AT or BELOW £{threshold}
+- Do NOT include refunds (negative amounts)
+
+OUTPUT FORMAT:
+For each transaction above threshold:
+- Transaction ID: [ID]
+- Amount: £[AMOUNT]
+- Date: [DATE]
+- Merchant: [MERCHANT]
+- Category: [CATEGORY]
+
+SUMMARY:
+- Total count: [NUMBER]
+- Total amount: £[SUM]
+- Average: £[AVG]
+
+Provide complete, accurate results.
+""",
+            variables=["data", "threshold"]
+        ))
+
+        # FW20: Luxury Brands & Money Transfers
+        self.add_template(PromptTemplate(
+            name="fw20_luxury_transfers",
+            description="FW20: Detect luxury brands and money transfers",
+            template="""You are an expert in transaction categorization with focus on luxury goods and financial transfers.
+
+TASK: Identify luxury brand purchases and money transfer transactions
+
+LUXURY BRANDS: Gucci, Louis Vuitton, Prada, Chanel, Rolex, Hermes, Cartier, Burberry, 
+                Versace, Dior, Tiffany, Bulgari, Armani, Fendi
+
+MONEY TRANSFER COMPANIES: Western Union, MoneyGram, Wise, PayPal Transfer, Revolut, 
+                          TransferWise, WorldRemit, Xoom, Remitly, Azimo
+
+DATA:
+{data}
+
+PRECISION CRITERIA (98%):
+- Only include CONFIRMED luxury brands (check spelling variations)
+- Only include CONFIRMED transfer services
+- Do NOT include regular retailers
+
+RECALL CRITERIA:
+- Check for name variations (e.g., "LV", "Louis V")
+- Include partial matches if clearly identified
+- Check description field for brand names
+
+OUTPUT:
+LUXURY BRANDS:
+[List each with transaction ID, amount, merchant]
+
+MONEY TRANSFERS:
+[List each with transaction ID, amount, service]
+
+SMALL TRANSACTIONS AGGREGATED (>£{threshold}/month):
+[Group by merchant if monthly total exceeds threshold]
+""",
+            variables=["data", "threshold"]
+        ))
+
+        # FW25: Missing Audit Trail
+        self.add_template(PromptTemplate(
+            name="fw25_missing_audit",
+            description="FW25: Identify transactions lacking audit trail",
+            template="""You are a compliance auditor identifying transactions with missing documentation.
+
+TASK: Find ALL transactions lacking proper audit trail
+
+INDICATORS OF MISSING AUDIT TRAIL:
+- Unknown merchant / "Unknown Merchant"
+- Missing merchant information
+- Cash withdrawals >£500 without notes
+- "Anonymous" transactions
+- "Unspecified" merchants
+- Foreign exchange without details
+- Wire transfers without beneficiary
+
+DATA:
+{data}
+
+PRECISION (98%):
+- Do NOT flag legitimate merchants with generic names
+- Distinguish between "Unknown" and legitimate business names
+
+RECALL:
+- Check ALL transaction types
+- Review notes field for missing information
+- Flag large cash withdrawals without documentation
+
+OUTPUT:
+MISSING AUDIT TRAIL TRANSACTIONS:
+- Transaction ID: [ID]
+- Amount: £[AMOUNT]
+- Merchant: [MERCHANT]
+- Reason: [WHY AUDIT TRAIL MISSING]
+- Risk Level: [LOW/MEDIUM/HIGH]
+
+SUMMARY:
+- Total flagged: [COUNT]
+- High risk: [COUNT]
+- Total amount: £[SUM]
+""",
+            variables=["data"]
+        ))
+
+        # FW30: Missing Months
+        self.add_template(PromptTemplate(
+            name="fw30_missing_months",
+            description="FW30: Detect missing months in statement sequence",
+            template="""You are a temporal analysis expert detecting gaps in financial data.
+
+TASK: Identify missing months in a 6-month bank statement sequence
+
+DATA:
+{data}
+
+ANALYSIS STEPS:
+1. Extract all unique months from transaction dates
+2. Determine date range (min to max)
+3. Generate expected month sequence
+4. Identify gaps
+
+PRECISION (100% required):
+- Do NOT flag months with partial data as missing
+- Only flag complete calendar month gaps
+
+OUTPUT:
+DATE RANGE:
+- Start: [YYYY-MM-DD]
+- End: [YYYY-MM-DD]
+- Span: [N] months
+
+ACTUAL MONTHS WITH TRANSACTIONS:
+[List: YYYY-MM]
+
+MISSING MONTHS:
+[List: YYYY-MM]
+
+ANALYSIS:
+- Expected months: [COUNT]
+- Actual months: [COUNT]
+- Missing months: [COUNT]
+- Is continuous: [YES/NO]
+""",
+            variables=["data"]
+        ))
+
+        # FW40: Light-touch Fraud Detection
+        self.add_template(PromptTemplate(
+            name="fw40_fraud_detection",
+            description="FW40: Detect errors and inconsistencies",
+            template="""You are a data quality analyst detecting errors and potential fraud indicators.
+
+TASK: Identify misspellings, calculation errors, and data inconsistencies
+
+DATA:
+{data}
+
+DETECTION CATEGORIES:
+
+1. MISSPELLINGS:
+   - Bank names (Barclays → "Barcley", HSBC → "HSCB")
+   - Merchant names
+   - Common typos
+
+2. CALCULATION ERRORS:
+   - Decimal point errors (£1000 vs £100.0)
+   - Incorrect totals
+   - Amount discrepancies
+
+3. DATA QUALITY ISSUES:
+   - Duplicate transaction IDs
+   - Negative amounts for non-refunds
+   - Invalid dates
+   - Missing required fields
+
+PRECISION (98%):
+- Do NOT flag acceptable name variations
+- Verify errors before flagging
+
+OUTPUT:
+MISSPELLINGS:
+- Transaction: [ID]
+- Found: [MISSPELLED]
+- Should be: [CORRECT]
+
+CALCULATION ERRORS:
+- Transaction: [ID]
+- Displayed: £[AMOUNT]
+- Expected: £[AMOUNT]
+
+DATA QUALITY ISSUES:
+- Issue type: [TYPE]
+- Details: [DESCRIPTION]
+
+FRAUD RISK SCORE: [0-10]
+REQUIRES REVIEW: [YES/NO]
+""",
+            variables=["data"]
+        ))
+
+        # FW45: Gambling Analysis
+        self.add_template(PromptTemplate(
+            name="fw45_gambling",
+            description="FW45: Analyze gambling transactions over 6 months",
+            template="""You are a behavioral finance analyst specializing in gambling activity detection.
+
+TASK: Identify and analyze ALL gambling transactions over 6 months
+
+GAMBLING OPERATORS: Bet365, William Hill, Paddy Power, Ladbrokes, Betfair, 
+                    Sky Bet, 888 Casino, Coral, Betway, Unibet, PokerStars,
+                    Online Casino, Poker, Betting
+
+DATA:
+{data}
+
+ANALYSIS REQUIRED:
+1. Total gambling spend
+2. Frequency (transactions per month)
+3. Pattern analysis (increasing/decreasing trend)
+4. Largest single bet
+5. Risk indicators
+
+PRECISION (98%):
+- Only confirmed gambling operators
+- Check for operator name variations
+
+OUTPUT:
+GAMBLING TRANSACTIONS:
+[List each: ID, Date, Amount, Operator]
+
+SUMMARY:
+- Total transactions: [COUNT]
+- Total spend: £[AMOUNT]
+- Average per transaction: £[AVG]
+- Max single bet: £[MAX]
+- Months with activity: [COUNT]
+
+MONTHLY BREAKDOWN:
+[Month: Count, Total spend]
+
+PATTERN ANALYSIS:
+- Trend: [INCREASING/STABLE/DECREASING]
+- Risk level: [LOW/MEDIUM/HIGH]
+
+RISK INDICATORS:
+[List any concerning patterns]
+""",
+            variables=["data"]
+        ))
+
+        # FW50: Debt Payments
+        self.add_template(PromptTemplate(
+            name="fw50_debt_payments",
+            description="FW50: Identify large debt payments ≥£{threshold}",
+            template="""You are a credit analyst identifying debt repayment patterns.
+
+TASK: Identify all debt payments ≥£{threshold}
+
+DEBT PAYMENT KEYWORDS: Loan, Credit Card, Mortgage, Finance, Repayment,
+                       Barclaycard, AMEX, Visa Payment, Mastercard Payment
+
+DATA:
+{data}
+
+PRECISION (98%):
+- Distinguish debt payments from regular purchases
+- Verify payment type
+
+DEBT CATEGORIES:
+- Credit card payments
+- Loan repayments
+- Mortgage payments
+- Finance agreements
+
+OUTPUT:
+LARGE DEBT PAYMENTS (≥£{threshold}):
+- Transaction ID: [ID]
+- Date: [DATE]
+- Amount: £[AMOUNT]
+- Creditor: [NAME]
+- Type: [CREDIT CARD/LOAN/MORTGAGE/OTHER]
+
+SUMMARY:
+- Total payments: [COUNT]
+- Total amount: £[SUM]
+- Average payment: £[AVG]
+
+CREDITOR BREAKDOWN:
+[Creditor: Total paid, Payment count]
+
+MONTHLY TOTALS:
+[Month: Total debt payments]
+
+DEBT BURDEN LEVEL: [LOW/MEDIUM/HIGH]
+""",
+            variables=["data", "threshold"]
+        ))
+
+        # === ADVANCED REASONING TEMPLATES ===
+
+        # Beam Search Reasoning
+        self.add_template(PromptTemplate(
+            name="beam_reasoning",
+            description="Beam search: Explore multiple reasoning paths simultaneously",
+            template="""You are analyzing bank transactions using beam search reasoning.
+
+TASK: {task_description}
+
+DATA:
+{data}
+
+BEAM SEARCH APPROACH:
+Explore 3 parallel reasoning paths simultaneously, then select the best.
+
+PATH 1: Conservative Approach
+- Use strict matching criteria
+- Minimize false positives
+- List findings: [...]
+
+PATH 2: Comprehensive Approach  
+- Use broader criteria
+- Maximize recall
+- List findings: [...]
+
+PATH 3: Balanced Approach
+- Balance precision and recall
+- Use moderate criteria
+- List findings: [...]
+
+EVALUATION:
+Compare paths on:
+- Precision estimate
+- Recall estimate
+- Confidence level
+
+SELECTED PATH: [1/2/3]
+REASONING: [Why this path is best]
+
+FINAL RESULTS:
+[Results from selected path]
+
+CONFIDENCE SCORE: [0-100%]
+""",
+            variables=["task_description", "data"]
+        ))
+
+        # Monte Carlo Sampling
+        self.add_template(PromptTemplate(
+            name="monte_carlo_reasoning",
+            description="Monte Carlo: Sample-based probabilistic reasoning",
+            template="""You are analyzing transactions using Monte Carlo sampling approach.
+
+TASK: {task_description}
+
+DATA:
+{data}
+
+MONTE CARLO APPROACH:
+Run 5 independent analysis iterations with slight variations, then aggregate.
+
+ITERATION 1: Strict threshold (confidence ≥90%)
+Results: [...]
+
+ITERATION 2: Moderate threshold (confidence ≥75%)
+Results: [...]
+
+ITERATION 3: Permissive threshold (confidence ≥60%)
+Results: [...]
+
+ITERATION 4: Pattern-based detection
+Results: [...]
+
+ITERATION 5: Keyword-based detection
+Results: [...]
+
+AGGREGATION:
+Items detected in 4+ iterations: [HIGH CONFIDENCE]
+Items detected in 3 iterations: [MEDIUM CONFIDENCE]
+Items detected in 1-2 iterations: [LOW CONFIDENCE]
+
+FINAL RESULTS:
+[Include high + medium confidence items]
+
+PRECISION ESTIMATE: [Based on consistency across iterations]
+CONFIDENCE INTERVALS: [Range of possible values]
+""",
+            variables=["task_description", "data"]
+        ))
+
+        # Chain of Thought with Self-Verification
+        self.add_template(PromptTemplate(
+            name="chain_of_thought_verified",
+            description="Chain of thought with self-verification for 98% accuracy",
+            template="""You are a meticulous analyst using chain-of-thought reasoning with self-verification.
+
+TASK: {task_description}
+
+DATA:
+{data}
+
+STEP 1: Initial Analysis
+Thought: Let me identify potential matches...
+Findings: [List candidates]
+
+STEP 2: Apply Precision Criteria
+Thought: Now I'll verify each candidate against strict criteria...
+For each candidate:
+  - Does it meet ALL requirements? [YES/NO]
+  - Confidence level: [0-100%]
+Verified: [Items passing verification]
+
+STEP 3: Check for Missing Items (Recall)
+Thought: Did I miss anything? Let me scan again...
+Additional items found: [...]
+
+STEP 4: Self-Verification
+Question: Are there any false positives in my results?
+Check: [Review each item]
+Removed: [Any items that don't meet 98% confidence]
+
+Question: Are there any false negatives (missed items)?
+Check: [Scan data again]
+Added: [Any missed items]
+
+STEP 5: Final Validation
+Precision check: [All items meet strict criteria? YES/NO]
+Completeness check: [All matching items included? YES/NO]
+
+FINAL RESULTS:
+[Verified, high-confidence results]
+
+CONFIDENCE: [%]
+ESTIMATED PRECISION: ≥98%
+ESTIMATED ACCURACY: ≥98%
+""",
+            variables=["task_description", "data"]
+        ))
+
+        # Tree of Thoughts
+        self.add_template(PromptTemplate(
+            name="tree_of_thoughts",
+            description="Tree of thoughts: Systematic exploration of solution space",
+            template="""You are using tree-of-thoughts reasoning for systematic analysis.
+
+TASK: {task_description}
+
+DATA:
+{data}
+
+THOUGHT TREE:
+
+ROOT: Problem - {task_description}
+
+BRANCH 1: Amount-based detection
+├─ Leaf 1.1: Exact threshold match
+│  Results: [...]
+├─ Leaf 1.2: Range-based detection  
+│  Results: [...]
+└─ Evaluation: [Which leaf performed better?]
+
+BRANCH 2: Keyword-based detection
+├─ Leaf 2.1: Strict keyword matching
+│  Results: [...]
+├─ Leaf 2.2: Fuzzy keyword matching
+│  Results: [...]
+└─ Evaluation: [Which leaf performed better?]
+
+BRANCH 3: Pattern-based detection
+├─ Leaf 3.1: Regular expressions
+│  Results: [...]
+├─ Leaf 3.2: Heuristic patterns
+│  Results: [...]
+└─ Evaluation: [Which leaf performed better?]
+
+BRANCH SYNTHESIS:
+Best from Branch 1: [...]
+Best from Branch 2: [...]
+Best from Branch 3: [...]
+
+COMBINED RESULTS:
+[Union of best approaches]
+
+FINAL OPTIMIZATION:
+[Remove duplicates, verify accuracy]
+
+PRECISION: ≥98%
+""",
+            variables=["task_description", "data"]
+        ))
+
+        logger.info(f"Initialized {len(self.templates)} prompt templates (including FW-specific and advanced reasoning)")
 
     def add_template(self, template: PromptTemplate):
         """Add a template to the library"""
