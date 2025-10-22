@@ -123,7 +123,7 @@ class TrueAIAgent:
         data_result = self.data_processor.process_all()
 
         # Load ground truth
-        gt_loaded = self.ground_truth_manager.load_master_file()
+        gt_loaded = self.ground_truth_manager.load_ground_truth()
 
         if data_result and gt_loaded:
             self.state['data_loaded'] = True
@@ -183,7 +183,12 @@ class TrueAIAgent:
         total_transactions = len(data_result.get('full_data', []))
 
         # Get ground truth for this requirement
-        ground_truth = self.ground_truth_manager.get_requirement_ground_truth(requirement)
+        ground_truth_data = self.ground_truth_manager.get_ground_truth_for_requirement(requirement)
+
+        # Convert to expected format
+        ground_truth = {
+            'high_value_transactions': [t['transaction_id'] for t in ground_truth_data]
+        }
 
         if not ground_truth:
             logger.error(f"No ground truth available for {requirement}")
@@ -252,7 +257,10 @@ class TrueAIAgent:
         total_transactions = len(data_result.get('full_data', []))
 
         # Get ground truth
-        ground_truth = self.ground_truth_manager.get_requirement_ground_truth(requirement)
+        ground_truth_data = self.ground_truth_manager.get_ground_truth_for_requirement(requirement)
+        ground_truth = {
+            'high_value_transactions': [t['transaction_id'] for t in ground_truth_data]
+        }
 
         # Format template
         prompt = self.template_library.format_template(
