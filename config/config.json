@@ -6,7 +6,7 @@
   },
 
   "llm": {
-    "default_provider": "mock",
+    "default_provider": "openai",
     "providers": {
       "openai": {
         "model": "gpt-4",
@@ -17,9 +17,6 @@
         "model": "claude-3-sonnet-20240229",
         "temperature": 0.7,
         "max_tokens": 2000
-      },
-      "mock": {
-        "enabled": true
       }
     }
   },
