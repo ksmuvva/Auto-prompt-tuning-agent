@@ -13,9 +13,9 @@ A sophisticated AI agent that autonomously tests, evaluates, and optimizes promp
 - ✅ **TRUE Adaptive Intelligence** - Iterative prompt optimization with failure-driven learning
 - ✅ **Ground Truth Validation** - 3,000 transactions, 982 validated high-value
 
-## 🆕 TRUE AI Agent vs Legacy System
+## 🆕  AI Agent vs Legacy System
 
-| Feature | TRUE AI Agent (Recommended) | Legacy System |
+| Feature | AI Agent (Recommended) | Legacy System |
 |---------|---------------------------|---------------|
 | **Learning** | ✅ Adaptive, failure-driven | ❌ Static templates |
 | **Metrics** | ✅ Real math (TP/TN/FP/FN) | ⚠️ Heuristic scoring |
@@ -45,7 +45,7 @@ cp .env.example .env
 
 ## Quick Start
 
-### 🆕 TRUE AI Agent (Recommended)
+### 🆕  AI Agent (Recommended)
 
 #### Natural Language CLI
 ```bash
@@ -92,7 +92,7 @@ agent> show-metrics
 
 ## Command Reference
 
-### TRUE AI Agent Commands (Natural Language)
+###  Agent Commands (Natural Language)
 
 | You Say | What It Does |
 |---------|-------------|
@@ -102,14 +102,7 @@ agent> show-metrics
 | `use gemini` | Switch to Google Gemini |
 | `use mock` | Use mock provider (no API key) |
 | `change model to gpt-4` | Set specific model |
-| **Analysis** |
-| `analyze fw15` | Analyze high-value transactions |
-| `analyze fw20` | Analyze luxury brands & transfers |
-| `analyze fw25` | Analyze missing audit trail |
-| `analyze fw30` | Detect missing months |
-| `analyze fw40` | Light-touch fraud detection |
-| `analyze fw45` | Gambling analysis |
-| `analyze fw50` | Large debt payments |
+
 | `analyze all requirements` | Run all FW analyses |
 | **Metrics & Results** |
 | `show metrics` | Display precision/accuracy/F1 |
@@ -184,15 +177,7 @@ agent> show-metrics
 
 ## FW Requirements
 
-| Code | Description | What It Detects |
-|------|-------------|-----------------|
-| **FW15** | High-Value Transactions | Transactions > £250 with merchant grouping |
-| **FW20** | Luxury & Transfers | Premium brands (Gucci, Rolex) + transfers (Western Union, Wise) |
-| **FW25** | Missing Audit Trail | Transactions lacking documentation, unknown merchants |
-| **FW30** | Missing Months | Gaps in 6-month statement sequences |
-| **FW40** | Light-Touch Fraud | Misspellings, calculation errors, duplicates |
-| **FW45** | Gambling Analysis | Gambling transactions with pattern detection |
-| **FW50** | Large Debt Payments | Debt repayments ≥ £500 by creditor type |
+
 
 ## TRUE AI Agent Features
 
@@ -317,7 +302,7 @@ agent> init mock
 
 ## Documentation
 
-- **TRUE_AI_AGENT_GUIDE.md** - Complete guide for TRUE AI Agent
+- **_AI_AGENT_GUIDE.md** - Complete guide for TRUE AI Agent
 - **DYNAMIC_AI_AGENT_SUMMARY.md** - Implementation summary
 - **COMPREHENSIVE_TEST_REPORT.md** - Test results & analysis
 - **USER_GUIDE.md** - Legacy system user guide
