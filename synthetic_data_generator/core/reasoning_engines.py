@@ -83,6 +83,9 @@ Respond with JSON:
                 schema={"field": "distribution"},
                 temperature=0.3
             )
+            # Validate that distributions match schema fields
+            if not distributions or not any(field in distributions for field in schema.keys()):
+                raise ValueError("Distributions don't match schema fields")
         except Exception as e:
             print(f"Warning: Failed to get distributions from LLM: {e}")
             distributions = self._default_distributions(schema, intent)
@@ -120,7 +123,17 @@ Respond with JSON:
                     value = max(value, min_val)
                 if max_val is not None:
                     value = min(value, max_val)
-                sample[field] = round(value, 2) if field_type == 'number' else int(value)
+
+                # Proper type handling based on semantic meaning
+                field_lower = field.lower()
+                if field_lower in ['age', 'years', 'count', 'quantity', 'number_of']:
+                    sample[field] = int(value)  # Integer for counts/ages
+                elif 'price' in field_lower or 'amount' in field_lower or 'salary' in field_lower:
+                    sample[field] = round(value, 2)  # 2 decimal places for currency
+                elif field_type == 'number':
+                    sample[field] = round(value, 2)  # Default for numbers
+                else:
+                    sample[field] = int(value)
 
             elif dist_type == 'categorical':
                 categories = params.get('categories', [])
@@ -128,13 +141,28 @@ Respond with JSON:
                 if categories:
                     sample[field] = np.random.choice(categories, p=probabilities)
                 else:
-                    sample[field] = f"sample_{field}"
+                    # No categories provided, use direct field value generation
+                    sample[field] = self._generate_field_value(field, field_type, intent)
 
             elif dist_type == 'uniform':
                 min_val = params.get('min', 0)
                 max_val = params.get('max', 100)
                 value = np.random.uniform(min_val, max_val)
-                sample[field] = round(value, 2) if field_type == 'number' else int(value)
+
+                # Proper type handling
+                field_lower = field.lower()
+                if field_lower in ['age', 'years', 'count', 'quantity', 'number_of']:
+                    sample[field] = int(value)
+                elif 'price' in field_lower or 'amount' in field_lower or 'salary' in field_lower:
+                    sample[field] = round(value, 2)
+                elif field_type == 'number':
+                    sample[field] = round(value, 2)
+                else:
+                    sample[field] = int(value)
+
+            elif dist_type == 'direct':
+                # Use direct field value generation (for non-numeric types)
+                sample[field] = self._generate_field_value(field, field_type, intent)
 
             else:
                 # Default: use LLM to generate value
@@ -147,30 +175,58 @@ Respond with JSON:
         distributions = {}
 
         for field, field_type in schema.items():
-            if field_type == 'number':
+            field_lower = field.lower()
+
+            # Use proper defaults based on semantic type
+            if field_lower in ['age', 'years']:
                 distributions[field] = {
                     'type': 'normal',
-                    'parameters': {'mean': 50, 'std': 15},
-                    'constraints': {'min': 0, 'max': 100}
+                    'parameters': {'mean': 38, 'std': 15},
+                    'constraints': {'min': 18, 'max': 80}
+                }
+            elif field_type == 'number' or 'amount' in field_lower or 'price' in field_lower:
+                distributions[field] = {
+                    'type': 'normal',
+                    'parameters': {'mean': 100, 'std': 50},
+                    'constraints': {'min': 10, 'max': 5000}
                 }
             else:
+                # For non-numeric fields, use direct generation
                 distributions[field] = {
-                    'type': 'categorical',
-                    'parameters': {'categories': [f"{field}_value_{i}" for i in range(5)]},
+                    'type': 'direct',  # Special type to trigger _generate_field_value
+                    'parameters': {},
                     'constraints': {}
                 }
 
         return distributions
 
     def _generate_field_value(self, field: str, field_type: str, intent: Intent) -> Any:
-        """Generate a single field value"""
-        # Simple generation based on field type
-        if field_type == 'number':
-            return random.randint(1, 100)
-        elif field_type == 'email':
-            return f"{field}{random.randint(1, 1000)}@example.com"
+        """Generate a single field value with proper type handling"""
+        from .uk_standards import UKStandardsGenerator
+
+        uk_gen = UKStandardsGenerator()
+        field_lower = field.lower()
+
+        # Semantic type detection
+        if 'id' in field_lower and field != 'id':
+            # Generate proper ID
+            prefix = field.replace('_id', '').replace('id', '').upper() or 'ID'
+            return f"{prefix}{random.randint(1, 9999):04d}"
+        elif field_lower in ['age', 'years', 'count', 'quantity']:
+            return random.randint(18, 80)  # Integer for age
+        elif 'name' in field_lower:
+            first, last = uk_gen.generate_name()
+            return f"{first} {last}" if 'full' in field_lower else (first if 'first' in field_lower else last)
+        elif 'email' in field_lower:
+            return f"user{random.randint(1, 9999)}@example.com"
+        elif 'phone' in field_lower or 'mobile' in field_lower:
+            return uk_gen.generate_phone('mobile')
+        elif 'postcode' in field_lower or 'postal' in field_lower:
+            return uk_gen.generate_postcode()
+        elif field_type == 'number' or 'price' in field_lower or 'amount' in field_lower:
+            return round(random.uniform(10.0, 1000.0), 2)
         elif field_type == 'date':
-            return "2025-01-01"
+            return uk_gen.generate_random_date(2023, 2025)
         else:
             return f"value_{random.randint(1, 1000)}"
 
@@ -249,11 +305,10 @@ Respond with JSON array of {num_candidates} records:
 
         except Exception as e:
             print(f"Warning: Failed to generate candidates: {e}")
-            # Fallback: generate simple candidates
-            return [
-                {field: f"candidate_{i}_{field}" for field in schema.keys()}
-                for i in range(num_candidates)
-            ]
+            # Fallback: generate realistic candidates using Monte Carlo-like approach
+            monte_carlo = MonteCarloEngine(self.llm)
+            fallback_results = monte_carlo.generate(intent, schema, count=num_candidates)
+            return [result.data for result in fallback_results]
 
     def _score_candidates(self, candidates: List[Dict], intent: Intent, schema: Dict) -> List[GenerationResult]:
         """Score candidates based on quality criteria"""
@@ -295,6 +350,7 @@ Respond with JSON array of scores (0-100 overall):
                     reasoning = score_info.get('reasoning', '')
                 else:
                     score = 0.5
+                    reasoning = 'Default score'
 
                 results.append(GenerationResult(
                     data=candidate,
@@ -378,15 +434,21 @@ Generate ONE record with reasoning. Respond with JSON:
 
             record = response.get('record', {})
             reasoning_steps = response.get('reasoning_steps', [])
-            reasoning_chain = " → ".join(reasoning_steps)
+            reasoning_chain = " → ".join(reasoning_steps) if reasoning_steps else "Direct generation"
+
+            # If record is empty, use fallback
+            if not record or len(record) == 0:
+                raise ValueError("Empty record returned")
 
             return record, reasoning_chain
 
         except Exception as e:
             print(f"Warning: Chain-of-thought generation failed: {e}")
-            # Fallback
-            record = {field: f"value_{index}_{field}" for field in schema.keys()}
-            return record, "Fallback generation (LLM failed)"
+            # Fallback: Use Monte Carlo for realistic data
+            monte_carlo = MonteCarloEngine(self.llm)
+            fallback_results = monte_carlo.generate(intent, schema, count=1)
+            record = fallback_results[0].data if fallback_results else {}
+            return record, f"Fallback generation (CoT failed: {str(e)[:50]})"
 
 
 class TreeOfThoughtsEngine(ReasoningEngine):
@@ -463,15 +525,21 @@ Respond with JSON:
             paths = response.get('explored_paths', [])
             selected = response.get('selected_path', '')
 
-            tree_reasoning = f"Explored paths: {', '.join(paths)}. Selected: {selected}"
+            # If record is empty, use fallback
+            if not record or len(record) == 0:
+                raise ValueError("Empty record returned")
+
+            tree_reasoning = f"Explored {len(paths)} paths. Selected: {selected[:50]}" if paths else "Direct generation"
 
             return record, tree_reasoning
 
         except Exception as e:
             print(f"Warning: Tree-of-thoughts generation failed: {e}")
-            # Fallback
-            record = {field: f"value_{index}_{field}" for field in schema.keys()}
-            return record, "Fallback generation (LLM failed)"
+            # Fallback: Use Monte Carlo for realistic data
+            monte_carlo = MonteCarloEngine(self.llm)
+            fallback_results = monte_carlo.generate(intent, schema, count=1)
+            record = fallback_results[0].data if fallback_results else {}
+            return record, f"Fallback generation (ToT failed: {str(e)[:50]})"
 
 
 class ReasoningEngineFactory:
