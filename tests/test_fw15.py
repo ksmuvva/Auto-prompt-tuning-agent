@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from agent.requirement_analyzer import RequirementAnalyzer
 from agent.ground_truth import GroundTruthManager
-from agent.metrics import calculate_precision_advanced, calculate_accuracy_advanced, meets_target_metrics
+from agent.metrics import PromptMetrics
 
 
 class TestFW15HighValue:
@@ -24,6 +24,7 @@ class TestFW15HighValue:
         """Setup test fixtures"""
         self.analyzer = RequirementAnalyzer()
         self.ground_truth = GroundTruthManager()
+        self.metrics = PromptMetrics()
         self.threshold = 250
 
     def test_fw15_basic_analysis(self):
@@ -71,7 +72,7 @@ class TestFW15HighValue:
         true_positives = len(ground_truth_ids.intersection(detected_ids))
         false_positives = len(detected_ids - ground_truth_ids)
 
-        precision = calculate_precision_advanced(true_positives, false_positives)
+        precision = self.metrics.calculate_precision_advanced(true_positives, false_positives)
 
         assert precision >= 0.98, f"Precision {precision:.4f} does not meet 98% target"
 
@@ -95,7 +96,7 @@ class TestFW15HighValue:
         false_negatives = len(ground_truth_ids - detected_ids)
         true_negatives = len(all_transaction_ids - ground_truth_ids - detected_ids)
 
-        accuracy = calculate_accuracy_advanced(true_positives, true_negatives, false_positives, false_negatives)
+        accuracy = self.metrics.calculate_accuracy_advanced(true_positives, true_negatives, false_positives, false_negatives)
 
         assert accuracy >= 0.98, f"Accuracy {accuracy:.4f} does not meet 98% target"
 
@@ -162,9 +163,9 @@ class TestFW15HighValue:
         accuracy = validation['accuracy']
 
         # Check against targets
-        meets_targets = meets_target_metrics(precision, accuracy, 0.98, 0.98)
+        meets_targets = self.metrics.meets_target_metrics(precision, accuracy, 0.98, 0.98)
 
-        assert meets_targets['meets_targets'], \
+        assert meets_targets['both_met'], \
             f"Failed to meet targets: Precision={precision:.4f}, Accuracy={accuracy:.4f}"
 
 
