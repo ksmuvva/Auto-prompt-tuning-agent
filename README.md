@@ -1,6 +1,6 @@
 # Prompt Tuning AI Agent
 
-**Automated Prompt Optimization for Financial Transaction Analysis**
+**Automated Prompt Optimization **
 
 A sophisticated AI agent that autonomously tests, evaluates, and optimizes prompts for analyzing bank transaction data with **98% precision and accuracy targets**. Supports 7 FW (Financial Workflow) requirements with ground truth validation, dynamic prompt generation, and multi-model support.
 
@@ -315,4 +315,4 @@ agent> init mock
 
 ---
 
-**Built with AI for AI** - A true AI agent that learns, adapts, and optimizes autonomously.
+ A  AI agent that learns, adapts, and optimizes autonomously.
