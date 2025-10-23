@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "title": "Sample Customer Data",
+    "geography": "UK",
+    "purpose": "testing"
+  },
+  "data": [
+    {
+      "customer_id": "CUST0001",
+      "name": "Customer 1",
+      "email": "customer1@example.com",
+      "age": 26,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0002",
+      "name": "Customer 2",
+      "email": "customer2@example.com",
+      "age": 27,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0003",
+      "name": "Customer 3",
+      "email": "customer3@example.com",
+      "age": 28,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0004",
+      "name": "Customer 4",
+      "email": "customer4@example.com",
+      "age": 29,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0005",
+      "name": "Customer 5",
+      "email": "customer5@example.com",
+      "age": 30,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0006",
+      "name": "Customer 6",
+      "email": "customer6@example.com",
+      "age": 31,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0007",
+      "name": "Customer 7",
+      "email": "customer7@example.com",
+      "age": 32,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0008",
+      "name": "Customer 8",
+      "email": "customer8@example.com",
+      "age": 33,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0009",
+      "name": "Customer 9",
+      "email": "customer9@example.com",
+      "age": 34,
+      "postcode": "SW1A 1AA"
+    },
+    {
+      "customer_id": "CUST0010",
+      "name": "Customer 10",
+      "email": "customer10@example.com",
+      "age": 35,
+      "postcode": "SW1A 1AA"
+    }
+  ]
+}
