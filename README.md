@@ -56,15 +56,29 @@ A sophisticated AI agent that autonomously tests, evaluates, and optimizes promp
 
 ### Core Capabilities
 
-- **Automated Prompt Testing**: Test multiple prompt templates against your data
-- **Metrics-Driven Evaluation**: Precision, Accuracy, Recall, F1, Completeness, Format Quality, Specificity
-- **AI-Powered Optimization**: Meta-prompting for dynamic prompt generation
-- **Ground Truth Validation**: Master file with 3,000 validated transactions
-- **Multiple LLM Support**: OpenAI (GPT-4, GPT-3.5), Anthropic (Claude-3), Google (Gemini-Pro), Cohere, Mistral, Ollama, LM Studio
-- **Interactive CLI**: User-friendly command-line interface with 40+ commands
-- **Memory System**: Agent learns from past interactions
-- **Bias Detection**: Tests merchant name, currency format, and date format bias
-- **Comparative Analysis**: Compare prompts, models, and strategies
+#### 🧠 TRUE Adaptive Intelligence
+- **Iterative Prompt Optimization**: Agent generates prompt → tests → analyzes failures → improves → repeats
+- **Failure-Driven Learning**: Identifies false positives/negatives and adjusts automatically
+- **Meta-Prompting**: Uses LLM to generate optimized prompts based on your data
+- **Target Achievement**: Keeps iterating until 98% precision & accuracy achieved
+
+#### 📈 TRUE Mathematical Metrics
+- **Exact Calculations**: Precision = TP/(TP+FP), Recall = TP/(TP+FN), Accuracy = (TP+TN)/Total
+- **Confusion Matrix**: Complete TP, TN, FP, FN tracking
+- **Ground Truth Comparison**: 3,000 transactions, 982 validated high-value
+- **No Approximations**: Real mathematical formulas, not estimates
+
+#### 💬 Natural Language Interface
+- **Talk Naturally**: "use openai", "analyze fw15", "show metrics", "tune the prompts"
+- **50+ Command Variations**: Understands context and intent
+- **User Controls**: Choose LLM, model, strategy, prompt mode
+- **Interactive Mode**: Conversational agent interaction
+
+#### 🔄 Multi-Mode Analysis
+- **Template Mode**: Fast analysis with predefined prompts
+- **Dynamic Mode**: AI-generated prompts optimized for your data (RECOMMENDED)
+- **Hybrid Mode**: Best of both worlds
+- **Comparative Mode**: Compare strategies and choose the best
 
 ### Advanced Prompt Templates
 
@@ -81,6 +95,10 @@ A sophisticated AI agent that autonomously tests, evaluates, and optimizes promp
 Auto-prompt-tuning-agent/
 ├── agent/
 │   ├── core.py                  # Main AI agent with FW integration
+│   ├── true_ai_agent.py        # 🆕 TRUE Adaptive AI Agent
+│   ├── true_metrics.py         # 🆕 TRUE Mathematical Metrics Calculator
+│   ├── adaptive_tuner.py       # 🆕 Iterative Prompt Optimization Engine
+│   ├── nlp_cli.py              # 🆕 Natural Language CLI Interface
 │   ├── cli.py                   # Interactive CLI (40+ commands)
 │   ├── llm_service.py          # Multi-provider LLM support
 │   ├── data_processor.py       # CSV data processing
@@ -94,6 +112,8 @@ Auto-prompt-tuning-agent/
 ├── prompts/
 │   └── templates.py            # 15+ prompt templates
 ├── tests/
+│   ├── test_ai_agent_behaviors.py # 🆕 AI behavior verification (26 tests)
+│   ├── run_comprehensive_tests.py # 🆕 Complete test suite (12 tests)
 │   ├── test_fw15.py            # FW15 validation tests
 │   ├── test_ground_truth.py   # Ground truth tests
 │   ├── test_dynamic_prompts.py # Dynamic generation tests
@@ -101,11 +121,17 @@ Auto-prompt-tuning-agent/
 │   ├── test_comparative.py    # Comparison tests
 │   └── test_integration_workflow.py # End-to-end tests
 ├── data/                       # 30 CSV files (3,000 transactions)
-│   └── ground_truth_master.json # Validation data
+│   └── ground_truth_master.json # Validation data (982 transactions)
 ├── config/
 │   └── config.json            # Configuration
 ├── results/                   # Output files
 ├── logs/                      # Agent memory & logs
+├── 🆕 TRUE_AI_AGENT_GUIDE.md     # Complete TRUE AI Agent guide
+├── 🆕 DYNAMIC_AI_AGENT_SUMMARY.md # Implementation summary
+├── 🆕 COMPREHENSIVE_TEST_REPORT.md # Test results & analysis
+├── 🆕 FINAL_TEST_EXECUTION_REPORT.md # Complete test execution
+├── 🆕 example_true_ai_agent.py    # Runnable examples
+├── 🆕 demo_with_mock.py          # Full workflow demonstration
 └── Documentation/
     ├── USER_GUIDE.md          # Comprehensive user guide
     ├── FEATURES.md            # Detailed features
@@ -148,22 +174,66 @@ This creates:
 
 ## Quick Start
 
-### Interactive Mode (Recommended)
+### 🆕 TRUE AI Agent (Recommended)
+
+#### Natural Language Mode
 ```bash
-python -m agent.cli
+python -m agent.nlp_cli
+
+You: use openai
+You: analyze fw15
+You: show me the metrics
+You: tune the prompts
 ```
 
-### Example Session
+#### Python API - Adaptive Tuning
+```python
+from agent.true_ai_agent import TrueAIAgent
+
+# Initialize with real LLM
+agent = TrueAIAgent(
+    llm_provider='openai',
+    model='gpt-4',
+    api_key='your-api-key',
+    max_tuning_iterations=10
+)
+
+# Load data
+agent.load_data()
+
+# Run adaptive tuning (iterates until 98% targets met)
+result = agent.analyze_with_dynamic_tuning(
+    requirement='fw15',
+    requirement_description='High-value transactions over £250',
+    target_precision=0.98,
+    target_accuracy=0.98
+)
+
+# Check results
+if result['target_achieved']:
+    print(f"🎯 Success in {result['iterations']} iterations!")
+    print(f"Precision: {result['best_metrics']['precision']:.2%}")
+    print(f"Accuracy: {result['best_metrics']['accuracy']:.2%}")
 ```
+
+#### Run Examples
+```bash
+python example_true_ai_agent.py    # 5 complete examples
+python demo_with_mock.py           # Full workflow demo
+```
+
+### Classic Mode (Template-Based)
+```bash
+python -m agent.cli
+
 agent> init gemini                  # Initialize with Google Gemini
 agent> load                         # Load CSV data
 agent> load-ground-truth            # Load validation data
-agent> set-strategy hybrid          # Use hybrid approach
+agent> set-strategy dynamic         # Use dynamic prompts
 agent> analyze-all-fw               # Run all FW analyses
 agent> validate-results             # Validate against ground truth
 agent> show-metrics                 # View precision/accuracy
 agent> bias-report                  # Check bias <2%
-agent> compare-strategies           # Compare approaches
 agent> export                       # Export results
 ```
 
