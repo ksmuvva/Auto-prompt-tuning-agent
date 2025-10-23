@@ -1,14 +1,8 @@
 """
-Generate Enhanced Sample Bank Transaction CSV Data with Detailed Ground Truth
-Creates 30 CSV files with realistic transaction data covering all FW requirements
+Generate Sample Bank Transaction CSV Data
+Creates 30 CSV files with realistic transaction data covering all FW requirements and edge cases
 
-ENHANCED GROUND TRUTH includes:
-- CSV file name
-- Row number (for human verification)
-- Full transaction data
-- TRUE mathematical metrics support (TP/TN/FP/FN)
-
-FW Requirements Coverage:
+Enhanced to support:
 - FW15: High-value transactions (>£250)
 - FW20: Luxury brands & money transfers
 - FW25: Missing audit trails
@@ -26,15 +20,15 @@ from pathlib import Path
 import json
 
 
-def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
-    """Generate sample bank transaction CSV files with detailed ground truth for human verification"""
+def generate_transaction_data(num_files=30, transactions_per_file=100):
+    """Generate sample bank transaction CSV files with comprehensive edge cases"""
 
     data_dir = Path("data")
     data_dir.mkdir(exist_ok=True)
 
     # === FW20: Luxury Brands ===
     luxury_brands = [
-        "Gucci London", "Louis Vuitton", "Prada", "Chanel",
+        "Gucci London", "Louis Vuitton", "Prada", "Chanel", 
         "Rolex Boutique", "Hermes Paris", "Cartier", "Burberry",
         "Versace", "Dior", "Tiffany & Co", "Bulgari"
     ]
@@ -65,24 +59,24 @@ def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
         # Groceries
         "Tesco Supermarket", "Sainsbury's", "Asda", "Waitrose", "Morrisons",
         "Amazon UK", "eBay", "John Lewis", "M&S", "Argos",
-
+        
         # Transport & Fuel
         "Shell Petrol", "BP Station", "Esso", "Texaco",
         "TfL Transport", "National Rail", "Uber", "Trainline",
-
+        
         # Food & Drink
         "Costa Coffee", "Starbucks", "Pret A Manger", "McDonald's",
-
+        
         # Entertainment & Subscriptions
         "Netflix", "Spotify", "Sky TV", "Amazon Prime",
-
+        
         # Utilities
         "British Gas", "Thames Water", "EDF Energy", "Octopus Energy",
-
+        
         # Travel
-        "Hotels.com", "Booking.com", "Airbnb", "British Airways",
+        "Hotels.com", "Booking.com", "Airbnb", "British Airways", 
         "EasyJet", "Virgin Atlantic", "Premier Inn",
-
+        
         # Electronics
         "Apple Store", "Currys PC World", "Samsung Store"
     ]
@@ -103,8 +97,8 @@ def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
     ]
 
     # Combine all merchants
-    all_merchants = (regular_merchants + luxury_brands + money_transfers +
-                    gambling_sites + debt_merchants + misspelled_merchants +
+    all_merchants = (regular_merchants + luxury_brands + money_transfers + 
+                    gambling_sites + debt_merchants + misspelled_merchants + 
                     no_audit_trail)
 
     # Transaction types
@@ -116,29 +110,26 @@ def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
 
     # === FW30: Create date ranges with MISSING MONTHS (March and June) ===
     base_date = datetime(2025, 1, 1)  # Start from Jan 2025
-
+    
     # Define allowed month ranges (excluding March and June for FW30)
     # January, February, April, May, July, August (6 months with gaps)
     allowed_months = [1, 2, 4, 5, 7, 8]
-
-    print(f"Generating {num_files} CSV files with enhanced ground truth...")
+    
+    print(f"Generating {num_files} CSV files with bank transaction data...")
     print(f"Coverage: 6 months with intentional gaps (March & June missing for FW30)")
 
-    # ENHANCED Ground truth tracking
+    print(f"Generating {num_files} CSV files with bank transaction data...")
+    print(f"Coverage: 6 months with intentional gaps (March & June missing for FW30)")
+
+    # Ground truth tracking
     ground_truth_data = {
         "metadata": {
-            "version": "2.0",
+            "version": "1.0",
             "created": datetime.now().isoformat(),
             "total_files": num_files,
             "transactions_per_file": transactions_per_file,
             "missing_months": ["2025-03", "2025-06"],
-            "coverage_months": ["2025-01", "2025-02", "2025-04", "2025-05", "2025-07", "2025-08"],
-            "enhancements": [
-                "CSV file names included",
-                "Row numbers for human verification",
-                "Full transaction data for cross-checking",
-                "TRUE mathematical metrics support"
-            ]
+            "coverage_months": ["2025-01", "2025-02", "2025-04", "2025-05", "2025-07", "2025-08"]
         },
         "fw15_high_value": [],
         "fw20_luxury_brands": [],
@@ -163,59 +154,91 @@ def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
 
             # Determine merchant category and amount distribution
             category_roll = random.random()
-            merchant = None
-            category = None
-            amount = 0
-            fw_tags = []  # Track which FW requirements this transaction meets
-
+            
             # === FW45: 8% Gambling ===
             if category_roll < 0.08:
                 merchant = random.choice(gambling_sites)
                 category = "Gambling"
                 amount = round(random.uniform(10, 500), 2)
-                fw_tags.append("FW45")
-
+                # Note: row_number will be updated after DataFrame is sorted
+                ground_truth_entry_fw45 = {
+                    "transaction_id": f"TXN{file_num:03d}{trans_num:04d}",
+                    "csv_file": csv_filename,
+                    "row_number": None,  # Will be set after sorting
+                    "amount": amount,
+                    "merchant": merchant,
+                    "category": category,
+                    "date": trans_date.strftime('%Y-%m-%d'),
+                    "temp_index": trans_num  # Temporary index for mapping
+                }
+            
             # === FW20: 5% Luxury Brands ===
             elif category_roll < 0.13:
                 merchant = random.choice(luxury_brands)
                 category = "Luxury"
                 amount = round(random.uniform(250, 3000), 2)
-                fw_tags.append("FW20_Luxury")
-
+                ground_truth_data["fw20_luxury_brands"].append({
+                    "transaction_id": f"TXN{file_num:03d}{trans_num:04d}",
+                    "amount": amount,
+                    "merchant": merchant,
+                    "date": trans_date.strftime('%Y-%m-%d')
+                })
+            
             # === FW20: 4% Money Transfers ===
             elif category_roll < 0.17:
                 merchant = random.choice(money_transfers)
                 category = "Money Transfer"
                 amount = round(random.uniform(100, 2000), 2)
-                fw_tags.append("FW20_Transfer")
-
+                ground_truth_data["fw20_money_transfers"].append({
+                    "transaction_id": f"TXN{file_num:03d}{trans_num:04d}",
+                    "amount": amount,
+                    "merchant": merchant,
+                    "date": trans_date.strftime('%Y-%m-%d')
+                })
+            
             # === FW50: 6% Debt Payments ===
             elif category_roll < 0.23:
                 merchant = random.choice(debt_merchants)
                 category = "Debt Payment"
                 amount = round(random.uniform(100, 1500), 2)
-                if amount >= 500:
-                    fw_tags.append("FW50")
-
+                if amount >= 500:  # Track large debt payments
+                    ground_truth_data["fw50_debt_payments"].append({
+                        "transaction_id": f"TXN{file_num:03d}{trans_num:04d}",
+                        "amount": amount,
+                        "merchant": merchant,
+                        "date": trans_date.strftime('%Y-%m-%d')
+                    })
+            
             # === FW25: 3% Missing Audit Trail ===
             elif category_roll < 0.26:
                 merchant = random.choice(no_audit_trail)
                 category = "Unknown"
                 amount = round(random.uniform(50, 1000), 2)
-                fw_tags.append("FW25")
-
+                ground_truth_data["fw25_missing_audit"].append({
+                    "transaction_id": f"TXN{file_num:03d}{trans_num:04d}",
+                    "amount": amount,
+                    "merchant": merchant,
+                    "date": trans_date.strftime('%Y-%m-%d'),
+                    "reason": "Missing merchant details"
+                })
+            
             # === FW40: 2% Misspelled Merchants (Errors) ===
             elif category_roll < 0.28:
                 merchant = random.choice(misspelled_merchants)
                 category = "Error"
                 amount = round(random.uniform(20, 200), 2)
-                fw_tags.append("FW40_Misspelling")
-
+                ground_truth_data["fw40_errors"].append({
+                    "transaction_id": f"TXN{file_num:03d}{trans_num:04d}",
+                    "error_type": "misspelling",
+                    "merchant": merchant,
+                    "date": trans_date.strftime('%Y-%m-%d')
+                })
+            
             # === Regular transactions (72%) ===
             else:
                 merchant = random.choice(regular_merchants)
                 category = categorize_merchant(merchant)
-
+                
                 # Amount distribution for regular transactions
                 if random.random() < 0.15:  # 15% high-value
                     amount = round(random.uniform(250, 1000), 2)
@@ -230,7 +253,13 @@ def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
 
             # === FW15: Track high-value transactions ===
             if amount > 250:
-                fw_tags.append("FW15")
+                ground_truth_data["fw15_high_value"].append({
+                    "transaction_id": f"TXN{file_num:03d}{trans_num:04d}",
+                    "amount": amount,
+                    "merchant": merchant,
+                    "category": category,
+                    "date": trans_date.strftime('%Y-%m-%d')
+                })
 
             trans_type = random.choice(transaction_types)
 
@@ -244,7 +273,13 @@ def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
                 # Introduce decimal errors
                 display_amount = amount * 10 if amount < 100 else amount / 10
                 has_error = True
-                fw_tags.append("FW40_Calculation")
+                ground_truth_data["fw40_errors"].append({
+                    "transaction_id": trans_id,
+                    "error_type": "calculation_error",
+                    "correct_amount": amount,
+                    "displayed_amount": display_amount,
+                    "date": trans_date.strftime('%Y-%m-%d')
+                })
 
             # Random description
             descriptions = [
@@ -265,8 +300,7 @@ def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
                 'description': random.choice(descriptions),
                 'category': category,
                 'status': 'Completed' if random.random() > 0.02 else random.choice(['Pending', 'Failed']),
-                'has_error': has_error,
-                'fw_requirements': '|'.join(fw_tags) if fw_tags else ''  # Track which FW requirements apply
+                'has_error': has_error
             }
 
             # Add contextual notes
@@ -292,192 +326,53 @@ def generate_enhanced_transaction_data(num_files=30, transactions_per_file=100):
         df = df.sort_values('date').reset_index(drop=True)
 
         # Save to CSV
-        filename = data_dir / csv_filename
+        filename = data_dir / f"transactions_{file_num:02d}.csv"
         df.to_csv(filename, index=False)
-
-        # === NOW BUILD GROUND TRUTH WITH CORRECT ROW NUMBERS ===
-        for idx, row in df.iterrows():
-            row_number = idx + 2  # +2 because: +1 for header, +1 for 0-indexed to 1-indexed
-            trans_id = row['transaction_id']
-            fw_reqs = row['fw_requirements'].split('|') if row['fw_requirements'] else []
-
-            # Prepare full transaction data for human verification
-            full_data = {
-                "transaction_id": trans_id,
-                "date": row['date'],
-                "amount": float(row['amount']),
-                "merchant": row['merchant'],
-                "category": row['category'],
-                "description": row['description'],
-                "transaction_type": row['transaction_type'],
-                "status": row['status']
-            }
-
-            # Add to appropriate FW requirement lists with ENHANCED details
-            # FW15: High-Value Transactions
-            if 'FW15' in fw_reqs:
-                ground_truth_data["fw15_high_value"].append({
-                    "transaction_id": trans_id,
-                    "csv_file": csv_filename,
-                    "row_number": row_number,
-                    "amount": float(row['actual_amount']),
-                    "merchant": row['merchant'],
-                    "category": row['category'],
-                    "date": row['date'],
-                    "full_data": full_data,
-                    "verification_note": f"Check {csv_filename} row {row_number}"
-                })
-
-            # FW20: Luxury Brands
-            if 'FW20_Luxury' in fw_reqs:
-                ground_truth_data["fw20_luxury_brands"].append({
-                    "transaction_id": trans_id,
-                    "csv_file": csv_filename,
-                    "row_number": row_number,
-                    "amount": float(row['actual_amount']),
-                    "merchant": row['merchant'],
-                    "date": row['date'],
-                    "full_data": full_data,
-                    "verification_note": f"Check {csv_filename} row {row_number}"
-                })
-
-            # FW20: Money Transfers
-            if 'FW20_Transfer' in fw_reqs:
-                ground_truth_data["fw20_money_transfers"].append({
-                    "transaction_id": trans_id,
-                    "csv_file": csv_filename,
-                    "row_number": row_number,
-                    "amount": float(row['actual_amount']),
-                    "merchant": row['merchant'],
-                    "date": row['date'],
-                    "full_data": full_data,
-                    "verification_note": f"Check {csv_filename} row {row_number}"
-                })
-
-            # FW25: Missing Audit Trail
-            if 'FW25' in fw_reqs:
-                ground_truth_data["fw25_missing_audit"].append({
-                    "transaction_id": trans_id,
-                    "csv_file": csv_filename,
-                    "row_number": row_number,
-                    "amount": float(row['actual_amount']),
-                    "merchant": row['merchant'],
-                    "date": row['date'],
-                    "reason": "Missing merchant details",
-                    "full_data": full_data,
-                    "verification_note": f"Check {csv_filename} row {row_number}"
-                })
-
-            # FW40: Errors (Misspellings)
-            if 'FW40_Misspelling' in fw_reqs:
-                ground_truth_data["fw40_errors"].append({
-                    "transaction_id": trans_id,
-                    "csv_file": csv_filename,
-                    "row_number": row_number,
-                    "error_type": "misspelling",
-                    "merchant": row['merchant'],
-                    "date": row['date'],
-                    "full_data": full_data,
-                    "verification_note": f"Check {csv_filename} row {row_number} - merchant name misspelled"
-                })
-
-            # FW40: Errors (Calculation)
-            if 'FW40_Calculation' in fw_reqs:
-                ground_truth_data["fw40_errors"].append({
-                    "transaction_id": trans_id,
-                    "csv_file": csv_filename,
-                    "row_number": row_number,
-                    "error_type": "calculation_error",
-                    "correct_amount": float(row['actual_amount']),
-                    "displayed_amount": float(row['amount']),
-                    "date": row['date'],
-                    "full_data": full_data,
-                    "verification_note": f"Check {csv_filename} row {row_number} - amount calculation error"
-                })
-
-            # FW45: Gambling
-            if 'FW45' in fw_reqs:
-                ground_truth_data["fw45_gambling"].append({
-                    "transaction_id": trans_id,
-                    "csv_file": csv_filename,
-                    "row_number": row_number,
-                    "amount": float(row['actual_amount']),
-                    "merchant": row['merchant'],
-                    "date": row['date'],
-                    "full_data": full_data,
-                    "verification_note": f"Check {csv_filename} row {row_number}"
-                })
-
-            # FW50: Large Debt Payments
-            if 'FW50' in fw_reqs:
-                ground_truth_data["fw50_debt_payments"].append({
-                    "transaction_id": trans_id,
-                    "csv_file": csv_filename,
-                    "row_number": row_number,
-                    "amount": float(row['actual_amount']),
-                    "merchant": row['merchant'],
-                    "date": row['date'],
-                    "full_data": full_data,
-                    "verification_note": f"Check {csv_filename} row {row_number}"
-                })
 
         print(f"  Created {filename.name} ({len(df)} transactions)")
 
-    # === Save Enhanced Ground Truth Master File ===
+    # === Save Ground Truth Master File ===
     ground_truth_file = data_dir / "ground_truth_master.json"
     with open(ground_truth_file, 'w') as f:
         json.dump(ground_truth_data, f, indent=2)
-
+    
     print(f"\n✓ Generated {num_files} CSV files in '{data_dir}' directory")
-    print(f"✓ Saved ENHANCED ground truth to {ground_truth_file}")
+    print(f"✓ Saved ground truth to {ground_truth_file}")
     print(f"  Total transactions: {num_files * transactions_per_file}")
 
     # Generate summary statistics
     all_files = list(data_dir.glob("transactions_*.csv"))
     all_data = pd.concat([pd.read_csv(f) for f in all_files])
 
-    print("\n" + "="*70)
-    print("ENHANCED DATASET SUMMARY - FW REQUIREMENTS COVERAGE")
-    print("="*70)
+    print("\n" + "="*60)
+    print("DATASET SUMMARY - FW REQUIREMENTS COVERAGE")
+    print("="*60)
     print(f"  Total records: {len(all_data)}")
     print(f"  Date range: {all_data['date'].min()} to {all_data['date'].max()}")
     print(f"  Amount range: £{all_data['amount'].min():.2f} to £{all_data['amount'].max():.2f}")
     print(f"\nFW15 - High-Value Transactions (>£250):")
     print(f"  Count: {len(ground_truth_data['fw15_high_value'])}")
-    print(f"  ✓ Includes: CSV file, row number, full data for verification")
     print(f"\nFW20 - Luxury Brands:")
     print(f"  Count: {len(ground_truth_data['fw20_luxury_brands'])}")
     print(f"  Total Amount: £{sum(t['amount'] for t in ground_truth_data['fw20_luxury_brands']):.2f}")
-    print(f"  ✓ Includes: CSV file, row number, full data for verification")
     print(f"\nFW20 - Money Transfers:")
     print(f"  Count: {len(ground_truth_data['fw20_money_transfers'])}")
-    print(f"  ✓ Includes: CSV file, row number, full data for verification")
     print(f"\nFW25 - Missing Audit Trail:")
     print(f"  Count: {len(ground_truth_data['fw25_missing_audit'])}")
-    print(f"  ✓ Includes: CSV file, row number, full data for verification")
     print(f"\nFW30 - Missing Months:")
     print(f"  Missing: {', '.join(ground_truth_data['fw30_missing_months'])}")
     print(f"  Coverage: {', '.join(ground_truth_data['metadata']['coverage_months'])}")
     print(f"\nFW40 - Data Errors:")
     print(f"  Count: {len(ground_truth_data['fw40_errors'])}")
     print(f"  Types: Misspellings, Calculation errors")
-    print(f"  ✓ Includes: CSV file, row number, full data for verification")
     print(f"\nFW45 - Gambling Transactions:")
     print(f"  Count: {len(ground_truth_data['fw45_gambling'])}")
     print(f"  Total Amount: £{sum(t['amount'] for t in ground_truth_data['fw45_gambling']):.2f}")
-    print(f"  ✓ Includes: CSV file, row number, full data for verification")
     print(f"\nFW50 - Large Debt Payments (≥£500):")
     print(f"  Count: {len(ground_truth_data['fw50_debt_payments'])}")
     print(f"  Total Amount: £{sum(t['amount'] for t in ground_truth_data['fw50_debt_payments']):.2f}")
-    print(f"  ✓ Includes: CSV file, row number, full data for verification")
     print(f"\n  Unique merchants: {all_data['merchant'].nunique()}")
-    print("="*70)
-    print("\n✓ ENHANCED FEATURES:")
-    print("  - CSV file names for each detection")
-    print("  - Row numbers for human verification")
-    print("  - Full transaction data included")
-    print("  - Ready for TRUE mathematical metrics (TP/TN/FP/FN)")
-    print("="*70)
+    print("="*60)
 
 
 def categorize_merchant(merchant):
@@ -488,16 +383,16 @@ def categorize_merchant(merchant):
         'Transport': ['Shell', 'BP', 'Esso', 'Texaco', 'TfL', 'National Rail', 'Uber', 'Trainline'],
         'Food & Drink': ['Costa', 'Starbucks', 'Pret', 'McDonald'],
         'Entertainment': ['Netflix', 'Spotify', 'Sky TV'],
-        'Gambling': ['Casino', 'Bet365', 'William Hill', 'Paddy Power', 'Ladbrokes',
+        'Gambling': ['Casino', 'Bet365', 'William Hill', 'Paddy Power', 'Ladbrokes', 
                      'Betfair', 'Sky Bet', '888', 'Coral', 'Betway', 'Unibet', 'PokerStars'],
         'Utilities': ['British Gas', 'Thames Water', 'EDF Energy', 'Octopus Energy'],
         'Travel': ['Hotels', 'Booking', 'Airbnb', 'Airways', 'EasyJet', 'Virgin', 'Premier Inn'],
         'Electronics': ['Apple', 'Currys', 'Argos', 'Samsung'],
-        'Luxury': ['Gucci', 'Louis Vuitton', 'Prada', 'Chanel', 'Rolex', 'Hermes',
+        'Luxury': ['Gucci', 'Louis Vuitton', 'Prada', 'Chanel', 'Rolex', 'Hermes', 
                    'Cartier', 'Burberry', 'Versace', 'Dior', 'Tiffany', 'Bulgari'],
-        'Money Transfer': ['Western Union', 'MoneyGram', 'Wise', 'PayPal Transfer',
+        'Money Transfer': ['Western Union', 'MoneyGram', 'Wise', 'PayPal Transfer', 
                           'Revolut', 'TransferWise', 'WorldRemit', 'Xoom', 'Remitly', 'Azimo'],
-        'Debt Payment': ['Barclaycard', 'AMEX', 'HSBC Loan', 'Santander Mortgage',
+        'Debt Payment': ['Barclaycard', 'AMEX', 'HSBC Loan', 'Santander Mortgage', 
                          'Nationwide Loan', 'Virgin Money', 'Capital One', 'Tesco Bank', 'Metro Bank'],
         'Unknown': ['Unknown', 'Cash Withdrawal', 'Wire Transfer', 'Foreign Exchange', 'Anonymous'],
         'Error': ['Barcley', 'HSCB', 'Siansburys', 'Tesoc', 'Amazn'],
@@ -511,19 +406,12 @@ def categorize_merchant(merchant):
     return 'Other'
 
 
-def generate_transaction_data(num_files=30, transactions_per_file=100):
-    """Wrapper for backwards compatibility"""
-    return generate_enhanced_transaction_data(num_files, transactions_per_file)
-
-
 if __name__ == "__main__":
-    print("\n" + "="*70)
-    print("ENHANCED DATA GENERATOR - FW REQUIREMENTS WITH DETAILED GROUND TRUTH")
-    print("="*70)
+    print("\n" + "="*60)
+    print("ENHANCED DATA GENERATOR - FW REQUIREMENTS")
+    print("="*60)
     generate_transaction_data(num_files=30, transactions_per_file=100)
-    print("\n✓ Enhanced sample data generation complete!")
-    print("✓ Enhanced ground truth master file created")
+    print("\n✓ Sample data generation complete!")
+    print("✓ Ground truth master file created")
     print("✓ All FW requirements covered (FW15-FW50)")
-    print("✓ CSV files, row numbers, and full data included for human verification")
-    print("✓ Ready for TRUE mathematical metrics calculation")
-    print("="*70 + "\n")
+    print("="*60 + "\n")

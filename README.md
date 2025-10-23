@@ -34,8 +34,9 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Generate sample data (3,000 transactions)
+# Generate enhanced sample data (3,000 transactions with detailed ground truth)
 python generate_sample_data.py
+# Creates: 30 CSV files + enhanced ground truth with CSV files, row numbers, full data
 
 # Optional: Set API keys
 cp .env.example .env
@@ -209,7 +210,28 @@ Accuracy  = (TP + TN) / (TP + TN + FP + FN)
 F1 Score  = 2 * (Precision * Recall) / (Precision + Recall)
 ```
 
-Complete confusion matrix tracking (TP, TN, FP, FN) with ground truth validation.
+Complete confusion matrix tracking (TP, TN, FP, FN) with **enhanced ground truth** validation.
+
+### 🔍 Enhanced Ground Truth (v2.0)
+- **CSV File Names**: Know exactly where each detection is located
+- **Row Numbers**: Verify any transaction in seconds
+- **Full Transaction Data**: Complete details for human cross-checking
+- **Verification Notes**: Clear instructions for manual audits
+- **Human Verifiable**: Anyone can audit LLM results
+
+**Example:**
+```json
+{
+  "transaction_id": "TXN0010017",
+  "csv_file": "transactions_01.csv",
+  "row_number": 5,
+  "amount": 448.07,
+  "merchant": "Pret A Manger",
+  "verification_note": "Check transactions_01.csv row 5"
+}
+```
+
+See [ENHANCED_GROUND_TRUTH.md](ENHANCED_GROUND_TRUTH.md) for complete documentation.
 
 ### 💬 Natural Language Interface
 - Talk naturally: "use openai", "analyze fw15", "tune the prompts"
