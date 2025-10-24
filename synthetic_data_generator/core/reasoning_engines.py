@@ -11,6 +11,7 @@ Implements multiple reasoning strategies for diverse, realistic data generation:
 from typing import List, Dict, Any, Optional, Callable
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
+from collections import defaultdict
 import random
 import numpy as np
 from .intent_engine import Intent
@@ -108,6 +109,8 @@ Respond with JSON:
 
         for field, field_type in schema.items():
             dist_info = distributions.get(field, {})
+            if dist_info is None:
+                dist_info = {}
             dist_type = dist_info.get('type', 'uniform')
             params = dist_info.get('parameters', {})
 
@@ -542,6 +545,321 @@ Respond with JSON:
             return record, f"Fallback generation (ToT failed: {str(e)[:50]})"
 
 
+class MCTSNode:
+    """Node in Monte Carlo Tree Search"""
+
+    def __init__(self, record: Dict[str, Any], parent=None):
+        self.record = record
+        self.parent = parent
+        self.children = []
+        self.visits = 0
+        self.value = 0.0
+        self.untried_features = []
+
+    def uct_value(self, exploration_weight: float = 1.414) -> float:
+        """Calculate UCT (Upper Confidence Bound for Trees) value"""
+        if self.visits == 0:
+            return float('inf')
+
+        exploitation = self.value / self.visits
+        exploration = exploration_weight * np.sqrt(np.log(self.parent.visits) / self.visits)
+        return exploitation + exploration
+
+    def is_fully_expanded(self) -> bool:
+        """Check if all child nodes have been explored"""
+        return len(self.untried_features) == 0
+
+    def best_child(self, exploration_weight: float = 1.414):
+        """Select best child using UCT"""
+        return max(self.children, key=lambda c: c.uct_value(exploration_weight))
+
+
+class MCTSEngine(ReasoningEngine):
+    """
+    Monte Carlo Tree Search (MCTS) Reasoning Engine
+
+    Uses MCTS to explore the space of possible data generation strategies
+    Best for: Complex optimization, exploration-exploitation tradeoff, adaptive generation
+    """
+
+    def __init__(self, llm_provider, num_simulations: int = 100, exploration_weight: float = 1.414):
+        super().__init__(llm_provider)
+        self.num_simulations = num_simulations
+        self.exploration_weight = exploration_weight
+
+    def generate(self, intent: Intent, schema: Dict[str, str], count: int = 1) -> List[GenerationResult]:
+        """
+        Generate data using MCTS
+
+        Explores generation space using selection, expansion, simulation, backpropagation
+        """
+        results = []
+
+        for i in range(count):
+            # Run MCTS to find optimal generation strategy
+            best_record = self._run_mcts(intent, schema, i)
+
+            results.append(GenerationResult(
+                data=best_record,
+                score=1.0,
+                reasoning=f"MCTS with {self.num_simulations} simulations, balanced exploration-exploitation",
+                metadata={
+                    "method": "mcts",
+                    "simulations": self.num_simulations,
+                    "exploration_weight": self.exploration_weight,
+                    "index": i
+                }
+            ))
+
+        return results
+
+    def _run_mcts(self, intent: Intent, schema: Dict[str, str], index: int) -> Dict[str, Any]:
+        """Run MCTS algorithm"""
+
+        # Initialize root with empty record
+        root_record = {field: None for field in schema.keys()}
+        root = MCTSNode(root_record)
+        root.untried_features = list(schema.keys())
+
+        # Run simulations
+        for sim in range(self.num_simulations):
+            node = self._select(root)
+            reward = self._simulate(node, intent, schema)
+            self._backpropagate(node, reward)
+
+        # Select best path from root
+        best_record = self._extract_best_record(root, schema)
+
+        return best_record
+
+    def _select(self, node: MCTSNode) -> MCTSNode:
+        """Selection phase: traverse tree using UCT"""
+        while not node.is_fully_expanded():
+            if len(node.children) == 0:
+                return node
+            node = node.best_child(self.exploration_weight)
+        return node
+
+    def _simulate(self, node: MCTSNode, intent: Intent, schema: Dict[str, str]) -> float:
+        """Simulation phase: generate and evaluate a complete record"""
+
+        # Start with current node's partial record
+        record = node.record.copy()
+
+        # Fill in missing fields using Monte Carlo-like approach
+        monte_carlo = MonteCarloEngine(self.llm)
+        mc_results = monte_carlo.generate(intent, schema, count=1)
+
+        if mc_results:
+            mc_record = mc_results[0].data
+
+            # Fill in None values from simulation
+            for field, value in record.items():
+                if value is None and field in mc_record:
+                    record[field] = mc_record[field]
+
+        # Evaluate quality of generated record
+        reward = self._evaluate_record(record, intent, schema)
+
+        # Create child node for this simulation
+        child = MCTSNode(record, parent=node)
+        node.children.append(child)
+
+        return reward
+
+    def _evaluate_record(self, record: Dict[str, Any], intent: Intent, schema: Dict[str, str]) -> float:
+        """Evaluate quality of a generated record"""
+
+        score = 0.0
+        max_score = len(schema)
+
+        # Check completeness
+        for field in schema.keys():
+            if field in record and record[field] is not None:
+                score += 1.0
+
+        # Check type correctness
+        for field, field_type in schema.items():
+            if field not in record or record[field] is None:
+                continue
+
+            value = record[field]
+
+            if field_type == 'number' and isinstance(value, (int, float)):
+                score += 0.5
+            elif field_type == 'string' and isinstance(value, str):
+                score += 0.5
+            elif field_type == 'date' and isinstance(value, str):
+                score += 0.5
+
+        # Normalize to 0-1
+        return score / (max_score * 1.5)
+
+    def _backpropagate(self, node: MCTSNode, reward: float):
+        """Backpropagation phase: update node statistics"""
+        while node is not None:
+            node.visits += 1
+            node.value += reward
+            node = node.parent
+
+    def _extract_best_record(self, root: MCTSNode, schema: Dict[str, str]) -> Dict[str, Any]:
+        """Extract best record from MCTS tree"""
+
+        # Find most visited child (best proven strategy)
+        if not root.children:
+            # Fallback to Monte Carlo if no children
+            monte_carlo = MonteCarloEngine(self.llm)
+            from .intent_engine import Intent
+            fallback_intent = Intent(
+                data_type="record",
+                count=1,
+                format="json",
+                purpose="generation",
+                domain=None,
+                geography=None,
+                additional_context=None
+            )
+            results = monte_carlo.generate(fallback_intent, schema, count=1)
+            return results[0].data if results else {}
+
+        best_child = max(root.children, key=lambda c: c.visits)
+        return best_child.record
+
+
+class HybridReasoningEngine(ReasoningEngine):
+    """
+    Hybrid Reasoning Engine
+
+    Combines multiple reasoning strategies for optimal data generation
+    Integrates: Monte Carlo, Beam Search, Chain-of-Thought, Tree-of-Thoughts, MCTS
+
+    Best for: Maximum quality, diverse datasets, adaptive generation
+    """
+
+    def __init__(
+        self,
+        llm_provider,
+        strategy_weights: Optional[Dict[str, float]] = None,
+        adaptive: bool = True
+    ):
+        super().__init__(llm_provider)
+
+        # Default strategy weights
+        self.strategy_weights = strategy_weights or {
+            'monte_carlo': 0.3,
+            'beam_search': 0.25,
+            'chain_of_thought': 0.2,
+            'tree_of_thoughts': 0.15,
+            'mcts': 0.1
+        }
+
+        self.adaptive = adaptive
+        self.performance_history = defaultdict(list)
+
+        # Initialize sub-engines
+        self.engines = {
+            'monte_carlo': MonteCarloEngine(llm_provider),
+            'beam_search': BeamSearchEngine(llm_provider, beam_width=5),
+            'chain_of_thought': ChainOfThoughtEngine(llm_provider),
+            'tree_of_thoughts': TreeOfThoughtsEngine(llm_provider, num_branches=3),
+            'mcts': MCTSEngine(llm_provider, num_simulations=50)
+        }
+
+    def generate(self, intent: Intent, schema: Dict[str, str], count: int = 1) -> List[GenerationResult]:
+        """
+        Generate data using hybrid approach
+
+        Combines multiple reasoning strategies based on weights and performance
+        """
+        results = []
+
+        for i in range(count):
+            # Select strategy based on weights
+            if self.adaptive and i > 10:
+                # Adapt weights based on performance
+                self._adapt_weights()
+
+            strategy = self._select_strategy()
+
+            # Generate using selected strategy
+            try:
+                engine = self.engines[strategy]
+                result = engine.generate(intent, schema, count=1)[0]
+
+                # Track performance
+                self.performance_history[strategy].append(result.score)
+
+                # Update metadata
+                result.reasoning = f"Hybrid: {strategy} (weight: {self.strategy_weights[strategy]:.2f})"
+                result.metadata = result.metadata or {}
+                result.metadata.update({
+                    'hybrid_strategy': strategy,
+                    'strategy_weight': self.strategy_weights[strategy],
+                    'adaptive': self.adaptive
+                })
+
+                results.append(result)
+
+            except Exception as e:
+                print(f"Warning: Strategy {strategy} failed, using fallback: {e}")
+                # Fallback to Monte Carlo
+                fallback = self.engines['monte_carlo'].generate(intent, schema, count=1)[0]
+                fallback.reasoning = f"Hybrid: monte_carlo (fallback from {strategy})"
+                results.append(fallback)
+
+        return results
+
+    def _select_strategy(self) -> str:
+        """Select strategy based on current weights"""
+        strategies = list(self.strategy_weights.keys())
+        weights = list(self.strategy_weights.values())
+
+        # Normalize weights
+        total = sum(weights)
+        if total == 0:
+            # Equal weights if all are zero
+            weights = [1.0 / len(strategies)] * len(strategies)
+        else:
+            weights = [w / total for w in weights]
+
+        return np.random.choice(strategies, p=weights)
+
+    def _adapt_weights(self):
+        """Adapt strategy weights based on performance history"""
+
+        if not self.adaptive:
+            return
+
+        # Calculate average performance for each strategy
+        avg_performance = {}
+        for strategy, scores in self.performance_history.items():
+            if scores:
+                avg_performance[strategy] = sum(scores) / len(scores)
+            else:
+                avg_performance[strategy] = 0.5  # Default
+
+        # Update weights proportionally to performance
+        total_performance = sum(avg_performance.values())
+        if total_performance > 0:
+            for strategy in self.strategy_weights.keys():
+                perf = avg_performance.get(strategy, 0.5)
+                self.strategy_weights[strategy] = perf / total_performance
+
+    def get_performance_summary(self) -> Dict[str, Any]:
+        """Get performance summary for all strategies"""
+
+        summary = {}
+        for strategy, scores in self.performance_history.items():
+            if scores:
+                summary[strategy] = {
+                    'avg_score': sum(scores) / len(scores),
+                    'num_uses': len(scores),
+                    'current_weight': self.strategy_weights.get(strategy, 0.0)
+                }
+
+        return summary
+
+
 class ReasoningEngineFactory:
     """Factory for creating reasoning engines"""
 
@@ -551,7 +869,8 @@ class ReasoningEngineFactory:
         Create a reasoning engine
 
         Args:
-            engine_type: Type of engine (monte_carlo, beam_search, chain_of_thought, tree_of_thoughts)
+            engine_type: Type of engine (monte_carlo, beam_search, chain_of_thought,
+                        tree_of_thoughts, mcts, hybrid)
             llm_provider: LLM provider instance
             **kwargs: Additional arguments for specific engines
 
@@ -564,7 +883,9 @@ class ReasoningEngineFactory:
             'chain_of_thought': ChainOfThoughtEngine,
             'cot': ChainOfThoughtEngine,
             'tree_of_thoughts': TreeOfThoughtsEngine,
-            'tot': TreeOfThoughtsEngine
+            'tot': TreeOfThoughtsEngine,
+            'mcts': MCTSEngine,
+            'hybrid': HybridReasoningEngine
         }
 
         engine_type = engine_type.lower()
