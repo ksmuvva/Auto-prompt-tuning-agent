@@ -8,8 +8,11 @@ import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import json
+from pathlib import Path
 
 from agent.true_metrics import TrueMetricsCalculator
+from agent.prompt_explainability import PromptExplainer
+from agent.prompt_shap_lime import PromptLIMEExplainer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,11 +28,22 @@ class AdaptivePromptTuner:
     5. Repeats until 98% targets met or max iterations reached
     """
 
-    def __init__(self, llm_service, max_iterations: int = 10):
+    def __init__(self, llm_service, max_iterations: int = 10, enable_lime: bool = False):
         self.llm_service = llm_service
         self.metrics_calculator = TrueMetricsCalculator()
         self.max_iterations = max_iterations
         self.tuning_history = []
+        
+        # NEW: Explainability components
+        self.explainer = PromptExplainer(llm_service)
+        self.explanations = []
+        
+        # NEW: Optional LIME explainability
+        self.enable_lime = enable_lime
+        self.lime_explainer = None
+        self.lime_explanations = []
+        
+        logger.info("✓ Explainability enabled (Basic + LIME)" if enable_lime else "✓ Explainability enabled (Basic only)")
 
     def generate_initial_prompt(self, requirement: str, context: Dict[str, Any]) -> str:
         """Generate initial prompt for a requirement using LLM"""
@@ -211,6 +225,56 @@ Generate the IMPROVED prompt. Return ONLY the new prompt text, no explanations."
             logger.info(f"Accuracy:  {metrics['accuracy']:.2%}")
             logger.info(f"F1 Score:  {metrics['f1_score']:.2%}")
             logger.info(f"Score:     {score:.2%}")
+            
+            # NEW: Generate explanation for this iteration
+            baseline_metrics = self.tuning_history[0]['metrics'] if len(self.tuning_history) > 0 else None
+            
+            explanation = self.explainer.explain_prompt_performance(
+                prompt=current_prompt,
+                metrics=metrics,
+                llm_response=test_result['llm_response'],
+                ground_truth=ground_truth,
+                baseline_metrics=baseline_metrics
+            )
+            self.explanations.append(explanation)
+            
+            # Log explanation insights
+            logger.info(f"\n📊 EXPLAINABILITY ANALYSIS:")
+            if explanation.success_factors:
+                logger.info(f"  Success Factors ({len(explanation.success_factors)}):")
+                for factor in explanation.success_factors[:3]:
+                    logger.info(f"    {factor}")
+            
+            if explanation.failure_factors:
+                logger.info(f"  Failure Factors ({len(explanation.failure_factors)}):")
+                for factor in explanation.failure_factors[:3]:
+                    logger.info(f"    {factor}")
+            
+            if explanation.improvement_suggestions and metrics['precision'] < target_precision:
+                logger.info(f"  Improvement Suggestions:")
+                for suggestion in explanation.improvement_suggestions[:2]:
+                    logger.info(f"    {suggestion}")
+            
+            # NEW: Optional LIME analysis
+            if self.enable_lime and iteration in [1, self.max_iterations]:
+                logger.info(f"\n🔍 LIME LOCAL INTERPRETABILITY:")
+                if self.lime_explainer is None:
+                    # Initialize LIME explainer with test function
+                    self.lime_explainer = PromptLIMEExplainer(
+                        lambda p: self.test_prompt(p, data, ground_truth, total_transactions)['metrics']
+                    )
+                
+                lime_exp = self.lime_explainer.explain(current_prompt, metric='precision', num_samples=30)
+                self.lime_explanations.append(lime_exp)
+                
+                logger.info(f"  Local Model R²: {lime_exp.local_model_r2:.3f}")
+                logger.info(f"  Top Features:")
+                for feat, imp in lime_exp.top_features[:3]:
+                    weight = lime_exp.local_model_weights[feat]
+                    direction = "↑" if weight > 0 else "↓"
+                    logger.info(f"    {direction} {feat}: {imp:.3f}")
+            
+            logger.info("")  # Empty line for readability
 
             # Track best
             if score > best_score:
@@ -243,7 +307,10 @@ Generate the IMPROVED prompt. Return ONLY the new prompt text, no explanations."
                     'best_prompt': current_prompt,
                     'best_metrics': metrics,
                     'final_score': score,
-                    'history': self.tuning_history
+                    'history': self.tuning_history,
+                    'explanations': self.explanations,
+                    'final_explanation': self.explanations[-1] if self.explanations else None,
+                    'lime_explanations': self.lime_explanations if self.enable_lime else None
                 }
 
             # Generate improved prompt for next iteration
@@ -271,7 +338,10 @@ Generate the IMPROVED prompt. Return ONLY the new prompt text, no explanations."
             'best_metrics': best_metrics,
             'final_score': best_score,
             'history': self.tuning_history,
-            'message': f'Best score {best_score:.2%} after {self.max_iterations} iterations'
+            'message': f'Best score {best_score:.2%} after {self.max_iterations} iterations',
+            'explanations': self.explanations,
+            'final_explanation': self.explanations[-1] if self.explanations else None,
+            'lime_explanations': self.lime_explanations if self.enable_lime else None
         }
 
     def _empty_metrics(self) -> Dict[str, Any]:
@@ -353,3 +423,76 @@ Generate the IMPROVED prompt. Return ONLY the new prompt text, no explanations."
             'best_format': best_format_result['format'],
             'best_result': best_format_result
         }
+    
+    def export_explainability_reports(self, output_dir: str = 'results/explainability'):
+        """
+        Export explainability reports for all iterations
+        
+        Creates:
+        - Markdown reports per iteration
+        - JSON summary of all explanations
+        - LIME analysis reports (if enabled)
+        """
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        logger.info(f"Exporting explainability reports to {output_dir}")
+        
+        # Export iteration-by-iteration explanations
+        for i, explanation in enumerate(self.explanations, 1):
+            report = self.explainer.generate_explanation_report(explanation, 'markdown')
+            with open(output_path / f'iteration_{i}_explanation.md', 'w', encoding='utf-8') as f:
+                f.write(report)
+        
+        # Export summary JSON
+        summary = {
+            'total_iterations': len(self.explanations),
+            'explainability_enabled': True,
+            'lime_enabled': self.enable_lime,
+            'iterations': []
+        }
+        
+        for i, explanation in enumerate(self.explanations, 1):
+            summary['iterations'].append({
+                'iteration': i,
+                'metrics': explanation.metrics,
+                'success_factors_count': len(explanation.success_factors),
+                'failure_factors_count': len(explanation.failure_factors),
+                'suggestions_count': len(explanation.improvement_suggestions),
+                'feature_importances': [
+                    {
+                        'feature': fi.feature,
+                        'importance': fi.importance_score,
+                        'explanation': fi.explanation
+                    }
+                    for fi in explanation.feature_importances[:5]
+                ]
+            })
+        
+        with open(output_path / 'explainability_summary.json', 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=2)
+        
+        # Export LIME reports if available
+        if self.lime_explanations:
+            lime_data = []
+            for i, lime_exp in enumerate(self.lime_explanations, 1):
+                lime_data.append({
+                    'iteration': i,
+                    'local_model_r2': lime_exp.local_model_r2,
+                    'neighborhood_size': lime_exp.neighborhood_size,
+                    'top_features': [
+                        {'feature': feat, 'importance': imp}
+                        for feat, imp in lime_exp.top_features[:10]
+                    ],
+                    'feature_weights': lime_exp.local_model_weights
+                })
+            
+            with open(output_path / 'lime_analysis.json', 'w', encoding='utf-8') as f:
+                json.dump(lime_data, f, indent=2)
+        
+        logger.info(f"\u2713 Exported {len(self.explanations)} iteration explanations")
+        logger.info(f"\u2713 Exported explainability summary")
+        if self.lime_explanations:
+            logger.info(f"\u2713 Exported {len(self.lime_explanations)} LIME analyses")
+        
+        return str(output_path)

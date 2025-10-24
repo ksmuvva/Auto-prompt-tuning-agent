@@ -667,8 +667,7 @@ class PromptFormatConverter:
             'cohere': PromptFormat.MARKDOWN,
             'mistral': PromptFormat.MARKDOWN,
             'ollama': PromptFormat.PLAIN,
-            'lmstudio': PromptFormat.PLAIN,
-            'mock': PromptFormat.PLAIN
+            'lmstudio': PromptFormat.PLAIN
         }
 
         preferred_format = provider_preferences.get(provider, PromptFormat.PLAIN)

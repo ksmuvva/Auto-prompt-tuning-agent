@@ -110,7 +110,7 @@ class PromptTuningAgent:
 
     def __init__(
         self,
-        llm_provider: str = "mock",
+        llm_provider: str = "openai",
         data_dir: str = "data",
         output_dir: str = "results",
         config: Optional[Dict[str, Any]] = None
