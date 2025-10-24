@@ -1,6 +1,6 @@
 # Advanced Synthetic Data Generator
 
-**World-Class, LLM-Agnostic, UK-Compliant Synthetic Data Generation**
+** LLM-Agnostic, UK-Compliant Synthetic Data Generation**
 
 A sophisticated synthetic data generator that understands user intent at a micro level and generates real-world quality data in multiple formats using advanced reasoning techniques.
 
@@ -593,7 +593,7 @@ python examples/explainability_demo.py
 
 ---
 
-## 🏆 Why This Is World-Class
+## 🏆 features
 
 1. **Intent Understanding**: Goes beyond simple templates, understands WHY you need data
 2. **Multi-Reasoning**: Six different AI reasoning approaches for maximum quality
