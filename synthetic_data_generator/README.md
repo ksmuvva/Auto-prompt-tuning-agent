@@ -16,6 +16,8 @@ A sophisticated synthetic data generator that understands user intent at a micro
 - **Beam Search**: Multiple candidates, select best
 - **Chain-of-Thought**: Step-by-step reasoning for complex data
 - **Tree-of-Thoughts**: Explores multiple generation paths
+- **MCTS (Monte Carlo Tree Search)**: Exploration-exploitation balance for optimal generation
+- **Hybrid Reasoning**: Combines all strategies with adaptive weighting
 
 ### 🇬🇧 UK Standards Compliance
 - **GDPR Compliant**: Synthetic data, no real PII
@@ -43,6 +45,7 @@ Works with any LLM provider:
 - **Pattern Learning**: Learns from your examples
 - **Quality Assurance**: Validates generated data
 - **Batch Export**: Export to multiple formats at once
+- **Explainability**: Comprehensive AI/ML explainability with SHAP, LIME, feature importance, and decision rules
 
 ---
 
@@ -218,6 +221,51 @@ results_cot = cot.generate(intent, schema, count=100)
 # Tree-of-Thoughts - Best for exploring multiple scenarios
 tot = ReasoningEngineFactory.create('tree_of_thoughts', llm, num_branches=3)
 results_tot = tot.generate(intent, schema, count=100)
+
+# MCTS - Best for exploration-exploitation balance
+mcts = ReasoningEngineFactory.create('mcts', llm, num_simulations=100)
+results_mcts = mcts.generate(intent, schema, count=100)
+
+# Hybrid - Combines all strategies with adaptive weighting
+hybrid = ReasoningEngineFactory.create('hybrid', llm, adaptive=True)
+results_hybrid = hybrid.generate(intent, schema, count=100)
+```
+
+### Example 7: Explainability Features
+
+```python
+from core.explainable_generator import ExplainableSyntheticGenerator, ExplainabilityDashboard
+
+# Create explainable generator
+generator = ExplainableSyntheticGenerator(
+    llm_provider=llm,
+    reasoning_engine='hybrid',
+    enable_explainability=True
+)
+
+# Generate data with explanations
+result = generator.generate_from_prompt(
+    "Generate 100 customer records",
+    include_shap=True,
+    include_lime=True,
+    export_explanation=True,
+    output_dir='./output'
+)
+
+# Display explainability report
+ExplainabilityDashboard.print_report(result)
+
+# Get feature importance summary
+print(generator.get_feature_importance_summary(result, top_k=5))
+
+# Get decision rules summary
+print(generator.get_decision_rules_summary(result, top_k=5))
+
+# Export data and explanations
+generator.export_data(result, './output/customers.csv', format='csv')
+# Explanation reports automatically exported to:
+# - ./output/explainability_report.json
+# - ./output/explainability_report.md
 ```
 
 ---
@@ -227,19 +275,24 @@ results_tot = tot.generate(intent, schema, count=100)
 ```
 synthetic_data_generator/
 ├── core/
-│   ├── llm_providers.py         # LLM-agnostic provider architecture
+│   ├── llm_providers.py          # LLM-agnostic provider architecture
 │   ├── intent_engine.py          # Intent & context understanding
 │   ├── ambiguity_detector.py     # Ambiguity detection
-│   ├── reasoning_engines.py      # Multi-reasoning (MC, Beam, CoT, ToT)
+│   ├── reasoning_engines.py      # Multi-reasoning (MC, Beam, CoT, ToT, MCTS, Hybrid)
+│   ├── explainability.py         # 🆕 Feature importance, SHAP, LIME, decision rules
+│   ├── explainable_generator.py  # 🆕 Explainability-aware data generator
 │   ├── uk_standards.py           # UK standards compliance
 │   ├── pattern_learner.py        # Pattern recognition
 │   └── output_engine.py          # Multi-format output
 ├── cli/
 │   └── nlp_interface.py          # Natural language CLI
 ├── tests/
-│   └── test_synthetic_generator.py
+│   ├── test_synthetic_generator.py
+│   └── test_explainability.py    # 🆕 Comprehensive explainability tests
 ├── examples/
-│   └── basic_usage.py
+│   ├── basic_usage.py
+│   ├── explainability_demo.py    # 🆕 Explainability demonstrations
+│   └── hybrid_reasoning_demo.py  # 🆕 Hybrid reasoning demonstrations
 └── requirements_synthetic.txt
 ```
 
@@ -250,17 +303,25 @@ synthetic_data_generator/
 ```bash
 # Run comprehensive tests
 cd synthetic_data_generator
+
+# Test core functionality
 python tests/test_synthetic_generator.py
+
+# Test explainability features (25 tests)
+python tests/test_explainability.py
 
 # Run example demonstrations
 python examples/basic_usage.py
+python examples/explainability_demo.py
+python examples/hybrid_reasoning_demo.py
 ```
 
 ### Test Coverage:
 - ✓ LLM Providers (OpenAI, Anthropic, Gemini, Mock)
 - ✓ Intent Engine (parsing, schema generation)
 - ✓ Ambiguity Detection (clarification questions)
-- ✓ Reasoning Engines (all 4 types)
+- ✓ Reasoning Engines (all 6 types: MC, Beam, CoT, ToT, MCTS, Hybrid)
+- ✓ Explainability (Feature Importance, SHAP, LIME, Decision Rules)
 - ✓ UK Standards (postcodes, phones, dates, currency)
 - ✓ Pattern Learning (email, ID patterns)
 - ✓ Output Engines (CSV, JSON, PDF, Word, Excel, Markdown)
@@ -470,15 +531,79 @@ This project is designed for hackathons and educational purposes.
 
 ---
 
+## 🔍 Explainability Features
+
+### Comprehensive AI/ML Explainability
+
+The generator provides world-class explainability for understanding how synthetic data is generated:
+
+#### 1. Feature Importance Analysis
+```python
+# Shows which features are most important in generation
+{
+  "age": {
+    "importance": 0.85,
+    "type": "interactive",
+    "explanation": "Age interacts with salary and job title"
+  }
+}
+```
+
+#### 2. Decision Rules Extraction
+```python
+# Extracts human-readable rules
+IF age > 30 THEN salary ~ Normal(75000, 15000)
+IF postcode.startswith('SW') THEN city = 'London'
+```
+
+#### 3. SHAP (SHapley Additive exPlanations)
+```python
+# Attribution for each feature in each record
+Record #1:
+  age: +15.2 (significantly above baseline)
+  salary: -5.3 (below baseline)
+  city: +2.1 (typical value)
+```
+
+#### 4. LIME (Local Interpretable Model-agnostic Explanations)
+```python
+# Local model for each record
+Record #1 Local Model (fidelity: 0.92):
+  • age=35 strongly influences this record (weight: 0.88)
+  • salary=65000 moderately influences (weight: 0.55)
+```
+
+### Explainability Reports
+
+Automatically generates:
+- **JSON Reports**: Machine-readable explainability data
+- **Markdown Reports**: Human-readable documentation
+- **Interactive Dashboard**: Console-based visualization
+
+```bash
+# Run explainability demo
+python examples/explainability_demo.py
+
+# Generates:
+# - Feature importance charts
+# - Decision rule tables
+# - SHAP value breakdowns
+# - LIME interpretations
+```
+
+---
+
 ## 🏆 Why This Is World-Class
 
 1. **Intent Understanding**: Goes beyond simple templates, understands WHY you need data
-2. **Multi-Reasoning**: Four different AI reasoning approaches for maximum quality
-3. **Standards Compliance**: True UK compliance (GDPR, formats, demographics)
-4. **LLM Agnostic**: Works with any LLM, not locked to one provider
-5. **Multi-Format**: Seven different output formats
-6. **Production Ready**: Comprehensive tests, error handling, documentation
-7. **Natural Language**: Talk to it like a human, not a machine
+2. **Multi-Reasoning**: Six different AI reasoning approaches for maximum quality
+3. **Explainability**: Industry-leading explainability with SHAP, LIME, feature importance, and decision rules
+4. **Standards Compliance**: True UK compliance (GDPR, formats, demographics)
+5. **LLM Agnostic**: Works with any LLM, not locked to one provider
+6. **Multi-Format**: Seven different output formats
+7. **Production Ready**: Comprehensive tests, error handling, documentation
+8. **Natural Language**: Talk to it like a human, not a machine
+9. **Adaptive Learning**: Hybrid engine learns which strategies work best
 
 ---
 
